@@ -22,7 +22,6 @@ using std::endl;
 using std::rand;
 using std::string;
 using std::getline;
-using std::exception;
 
 long long unsigned int modExpo(long long unsigned int a, long long unsigned int b, long long unsigned int n);
 long long unsigned int modInverse(long long unsigned int e, long long unsigned int phi);
