@@ -115,7 +115,7 @@ int main() {
 //
 // ex: 2^2 mod 3
 // (first loop)
-// remain = 2 & 2 = 0
+// remain = 2 % 2 = 0
 // exp = 2 / 2 = 1
 // if (remain == 1) result = (1 * 2) % 3 [FALSE]
 // base = base^2 % 3 = 1
