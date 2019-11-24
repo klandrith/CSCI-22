@@ -139,11 +139,32 @@ long long unsigned int modExpo(long long unsigned int base, long long unsigned i
 // A more efficient way would be to use the extended euclidean algorithm,
 // this method uses brute force to check all numbers from 1 to phi - 1
 // [note: assumes arguments passed are coprime]
+/*
 long long unsigned int modInverse(long long unsigned int e, long long unsigned int phi) {
   e = e % phi;
   for (long long unsigned int i = 1; i < phi; i++) {
     if ((e * i) % phi == 1) return i;
   }
+}
+*/
+long long unsigned int modInverse(long long unsigned int e, long long unsigned int phi) {
+  int phi0 = phi;
+  int y = 0, x = 1;
+  if (phi == 1) return 0;
+  while (e > 1) {
+    int quotient = e / phi;
+    int t = phi;
+    // m is remainder now, process same as
+    // Euclid's algo
+    phi = e % phi, e = t;
+    t = y;
+    // Update y and x
+    y = x - quotient * y;
+    x = t;
+  }
+  // Make x positive
+  if (x < 0) x += phi0;
+  return x;
 }
 
 // function to find the greatest common denominator of two integers
