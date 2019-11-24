@@ -7,7 +7,7 @@
                     https://www.geeksforgeeks.org/multiplicative-inverse-under-modulo-m/
     Description:    A simple program to perform RSA encryption on a string message
                     entered through console input. Generates random keys each time
-                    the program is ran. May possibly adapt it in the futre to work
+                    the program is ran. May possibly adapt it in the future to work
                     with file input and file output, as well as larger sized prime
                     numbers for generating better keys.
 */
@@ -83,7 +83,7 @@ int main() {
       encryptedmsg[i] = modExpo(msg[i], e, n);
     }
     // output the contents of the encrypted message array
-    cout << "\nEncrypted messaged is: \n";
+    cout << "\nEncrypted messaged is:\n";
     for (int i = 0; i < msglength; i++) {
       cout << encryptedmsg[i];
     }
@@ -122,9 +122,10 @@ int main() {
 // (second loop)
 // remain = 1 % 2 = 1
 // exp = 1 / 2 = 0
-// if (remain == 1) result = (1 * 2) % 3 = 1
+// if (remain == 1) result = (1 * 1) % 3 = 1
 // end of loop [exp is 0]
 // return result [1]
+//
 long long unsigned int modExpo(long long unsigned int base, long long unsigned int exp, long long unsigned int mod) {
   int remain;
   long long unsigned int result = 1;
