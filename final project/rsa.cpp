@@ -143,7 +143,7 @@ unsigned int modExpo(unsigned int base, unsigned int exp, unsigned int mod) {
 // then we take modulo of both sides
 // ax(mod m) + my(mod m) = 1(mod m)
 // we can remove my(mod m) as that will always be 0 for any integer y
-// ax(mod m) is always ax, so we are left with
+// ax(mod m) is always ax if x is the multiplicative inverse of a, so we are left with
 // ax = 1(mod m), where x is the modular multiplicative inverse of a,
 // in RSA the values are ed = 1(mod phi), where d is our private key
 // [note: assumes arguments passed are coprime]
