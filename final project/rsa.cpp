@@ -18,7 +18,6 @@
 
 using std::cin;
 using std::cout;
-using std::endl;
 using std::rand;
 using std::string;
 using std::getline;
@@ -40,7 +39,6 @@ int main() {
                           269, 271, 277, 281, 283, 293, 307, 311, 313, 317};
   int earray[20] = {3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31,
                     33, 35, 37, 39, 41};
-
   do {
     // Seed the Random Number Generator
     srand(time(0));
@@ -62,11 +60,10 @@ int main() {
     cout << "Random prime numbers have been selected for use in\n"
          << "generating the public and private keys. p: " << p << ", q: " << q <<"\n"
          << "An odd number between 3 and 41 that is coprime to\n"
-         << "(p - 1) * (q - 1) has been selected for the value of e." << endl;
-
-    cout << "\nPublic key is: (n: " << n << ", e: " << e << ")" << endl;
-    cout << "Private key is: (n: " << n << ", d: " << d << ")" << endl;
-    cout << "\nEnter the message to encrypt:\n";
+         << "(p - 1) * (q - 1) has been selected for the value of e.\n"
+         << "\nPublic key is: (n: " << n << ", e: " << e << ")\n"
+         << "Private key is: (n: " << n << ", d: " << d << ")\n"
+         << "\nEnter the message to encrypt:\n";
     getline(cin, message);
 
     int msglength = message.size();
@@ -101,7 +98,6 @@ int main() {
     cout << "\nEnter 0 to exit, 1 to encrypt another message: ";
     selection = reader.readInt(0, 1);
   } while(selection == 1);
-
  return 0;
 }
 
@@ -130,7 +126,6 @@ int main() {
 long long unsigned int modExpo(long long unsigned int base, long long unsigned int exp, long long unsigned int mod) {
   int remain;
   long long unsigned int result = 1;
-
   while (exp != 0) {
     remain = exp % 2;
     exp = exp / 2;
