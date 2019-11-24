@@ -22,13 +22,13 @@ using std::rand;
 using std::string;
 using std::getline;
 
-long long unsigned int modExpo(long long unsigned int a, long long unsigned int b, long long unsigned int n);
-long long unsigned int modInverse(long long unsigned int e, long long unsigned int phi);
-long long unsigned int gcd(long long unsigned int a, long long unsigned int b);
+unsigned int modExpo(unsigned int a, unsigned int b, unsigned int n);
+unsigned int modInverse(unsigned int e, unsigned int phi);
+unsigned int gcd(unsigned int a, unsigned int b);
 void ClearScreen();
 
 int main() {
-  long long unsigned int p, q, phi, n, e, d;
+  unsigned int p, q, phi, n, e, d;
   int index1, index2, eindex;
   int selection = 0;
   string message;
@@ -68,7 +68,7 @@ int main() {
 
     int msglength = message.size();
     int msg[msglength];
-    long long unsigned int encryptedmsg[msglength];
+    unsigned int encryptedmsg[msglength];
     char decryptedmsg[msglength];
     // convert the message from a string into an interger array
     // with type coercion
@@ -123,9 +123,9 @@ int main() {
 // end of loop [exp is 0]
 // return result [1]
 //
-long long unsigned int modExpo(long long unsigned int base, long long unsigned int exp, long long unsigned int mod) {
+unsigned int modExpo(unsigned int base, unsigned int exp, unsigned int mod) {
   int remain;
-  long long unsigned int result = 1;
+  unsigned int result = 1;
   while (exp != 0) {
     remain = exp % 2;
     exp = exp / 2;
@@ -135,28 +135,29 @@ long long unsigned int modExpo(long long unsigned int base, long long unsigned i
   return result;
 }
 
-// function to find the modular inverse d of e such that d*e = 1 mod phi
-// A more efficient way would be to use the extended euclidean algorithm,
-// this method uses brute force to check all numbers from 1 to phi - 1
+// function to find the modular multiplicative inverse d of e such that d*e = 1 mod phi
+// Uses the extended euclidean algorithm.
+// solves the following equation ax + by = gcd(a, b)
+// first we put m in place of b (as we know m and a are coprime the value is 1)
+// ax + my = 1
+// then we take modulo of both sides
+// ax(mod m) + my(mod m) = 1(mod m)
+// we can remove my(mod m) as that will always be 0 for any integer y
+// ax(mod m) is always ax, so we are left with
+// ax = 1(mod m), where x is the modular multiplicative inverse of a,
+// in RSA the values are ed = 1(mod phi), where d is our private key
 // [note: assumes arguments passed are coprime]
-/*
-long long unsigned int modInverse(long long unsigned int e, long long unsigned int phi) {
-  e = e % phi;
-  for (long long unsigned int i = 1; i < phi; i++) {
-    if ((e * i) % phi == 1) return i;
-  }
-}
-*/
-long long unsigned int modInverse(long long unsigned int e, long long unsigned int phi) {
-  int phi0 = phi;
+unsigned int modInverse(unsigned int e, unsigned int phi) {
+  unsigned int phi0 = phi;
   int y = 0, x = 1;
   if (phi == 1) return 0;
   while (e > 1) {
     int quotient = e / phi;
     int t = phi;
-    // m is remainder now, process same as
-    // Euclid's algo
-    phi = e % phi, e = t;
+    // phi is remainder now, process same as
+    // Euclid's algorithm
+    phi = e % phi;
+    e = t;
     t = y;
     // Update y and x
     y = x - quotient * y;
@@ -164,12 +165,12 @@ long long unsigned int modInverse(long long unsigned int e, long long unsigned i
   }
   // Make x positive
   if (x < 0) x += phi0;
-  return x;
+  return x; // value of d for private key
 }
 
 // function to find the greatest common denominator of two integers
 // using euclides algorithm
-long long unsigned int gcd(long long unsigned int a, long long unsigned int b) {
+unsigned int gcd(unsigned int a, unsigned int b) {
   if (b == 0) return a;
   return gcd(b, a % b);
 }
