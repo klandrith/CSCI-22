@@ -114,6 +114,7 @@ int main() {
 // into a binary and then performs a series of arithmetic on the base to arrive at the result
 //
 // ex: 2^2 mod 3
+// result = 1
 // (first loop)
 // remain = 2 % 2 = 0
 // exp = 2 / 2 = 1
@@ -139,10 +140,10 @@ long long unsigned int modExpo(long long unsigned int base, long long unsigned i
   return result;
 }
 
-// function to find the modular inverse of e under mod phi to determine value
-// used for d in private key generation. A more efficient way would be to use
-// extended euclidean algorithm, this method uses brute force to check all numbers
-// from 1 to phi - 1 [note: assumes arguments passed are coprime]
+// function to find the modular inverse d of e such that d*e = 1 mod phi
+// A more efficient way would be to use the extended euclidean algorithm,
+// this method uses brute force to check all numbers from 1 to phi - 1
+// [note: assumes arguments passed are coprime]
 long long unsigned int modInverse(long long unsigned int e, long long unsigned int phi) {
   e = e % phi;
   for (long long unsigned int i = 1; i < phi; i++) {
@@ -157,8 +158,7 @@ long long unsigned int gcd(long long unsigned int a, long long unsigned int b) {
   return gcd(b, a % b);
 }
 
-
-//clearscreen function to clear screen
+// function to clear screen
 void ClearScreen() {
 #ifdef _WIN32
   std::system("cls");
