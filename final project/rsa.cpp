@@ -59,7 +59,7 @@ int main() {
     }
     d = modInverse(e, phi);
 
-    cout << "Random prime numbers between have been selected for use in\n"
+    cout << "Random prime numbers have been selected for use in\n"
          << "generating the public and private keys. p: " << p << ", q: " << q <<"\n"
          << "An odd number between 3 and 41 that is coprime to\n"
          << "(p - 1) * (q - 1) has been selected for the value of e." << endl;
