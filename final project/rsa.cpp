@@ -94,8 +94,7 @@ int main() {
     for (int i = 0; i < msglength; i++) {
       cout << decryptedmsg[i];
     }
-    cout << "\n";
-    cout << "\nEnter 0 to exit, 1 to encrypt another message: ";
+    cout << "\n\nEnter 0 to exit, 1 to encrypt another message: ";
     selection = reader.readInt(0, 1);
   } while(selection == 1);
  return 0;
