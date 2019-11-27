@@ -147,7 +147,7 @@ private:
     }
 
     // function to find the modular multiplicative inverse d of e such that d*e = 1 mod phi
-    // Iteratively uses the extended euclidean algorithm, 
+    // Iteratively uses the extended euclidean algorithm to
     // solves the following equation ax + by = gcd(a, b) for x
     // [note: assumes arguments passed are coprime]
     //
