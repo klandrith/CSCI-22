@@ -21,6 +21,7 @@ using std::cout;
 using std::rand;
 using std::string;
 using std::getline;
+using std::hex;
 
 unsigned int modExpo(unsigned int a, unsigned int b, unsigned int n);
 unsigned int modInverse(unsigned int e, unsigned int phi);
@@ -82,7 +83,7 @@ int main() {
     // output the contents of the encrypted message array
     cout << "\nEncrypted messaged is:\n";
     for (int i = 0; i < msglength; i++) {
-      cout << encryptedmsg[i];
+      cout << hex << encryptedmsg[i];
     }
     cout << "\n";
     // decrypt the message and use type coercion to change from int to ASCII
@@ -135,32 +136,25 @@ unsigned int modExpo(unsigned int base, unsigned int exp, unsigned int mod) {
 }
 
 // function to find the modular multiplicative inverse d of e such that d*e = 1 mod phi
-// Uses the extended euclidean algorithm.
+// Iteratively uses the extended euclidean algorithm.
 // solves the following equation ax + by = gcd(a, b)
-// first we put m in place of b (as we know m and a are coprime the value is 1)
-// ax + my = 1
-// then we take modulo of both sides
-// ax(mod m) + my(mod m) = 1(mod m)
-// we can remove my(mod m) as that will always be 0 for any integer y
-// ax(mod m) is always ax if x is the multiplicative inverse of a, so we are left with
-// ax = 1(mod m), where x is the modular multiplicative inverse of a,
-// in RSA the values are ed = 1(mod phi), where d is our private key
 // [note: assumes arguments passed are coprime]
+//
 unsigned int modInverse(unsigned int e, unsigned int phi) {
   unsigned int phi0 = phi;
-  int y = 0, x = 1;
+  int y = 0, x = 1, quotient, temp;
   if (phi == 1) return 0;
   while (e > 1) {
-    int quotient = e / phi;
-    int t = phi;
+    quotient = e / phi;
+    temp = phi;
     // phi is remainder now, process same as
     // Euclid's algorithm
     phi = e % phi;
-    e = t;
-    t = y;
+    e = temp;
+    temp = y;
     // Update y and x
     y = x - quotient * y;
-    x = t;
+    x = temp;
   }
   // Make x positive
   if (x < 0) x += phi0;
