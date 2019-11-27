@@ -1,3 +1,4 @@
+
 /*  Programmer:     Kyle Landrith
     Date Competed:  11/27/19
     Resources:      geeksforgeeks.com
@@ -31,7 +32,7 @@ public:
     encryptedmsg = new unsigned int[msglength];
     decryptedmsg = new char[msglength];
   }
-  
+
   // encryption function
   void encrypt(string message) {
     int index1, index2, eindex;
@@ -145,9 +146,8 @@ private:
 
     // function to find the modular multiplicative inverse d of e such that d*e = 1 mod phi
     // Iteratively uses the extended euclidean algorithm to
-    // solves the following equation ax + by = gcd(a, b) for x
+    // solve the following equation ax + by = gcd(a, b) for x
     // [note: assumes arguments passed are coprime]
-    //
     long long unsigned int modInverse(long long unsigned int e, long long unsigned int phi) {
       long long unsigned int phi0 = phi;
       long long int y = 0, x = 1, quotient, temp;
@@ -179,46 +179,14 @@ private:
   // variables needed for encryption/decryption
   long long unsigned int p, q, phi, n, e, d;
   int msglength;
-  unsigned int primenumbers1[20] = {14503,
-                                    14519,
-                                    14533,
-                                    14537,
-                                    14543,
-                                    14549,
-                                    14551,
-                                    14557,
-                                    14561,
-                                    14563,
-                                    14591,
-                                    14593,
-                                    14621,
-                                    14627,
-                                    14629,
-                                    14633,
-                                    14639,
-                                    14653,
-                                    14657,
-                                    14669};
-  unsigned int primenumbers2[20] = {14813,
-                                    14821,
-                                    14827,
-                                    14831,
-                                    14843,
-                                    14851,
-                                    14867,
-                                    14869,
-                                    14879,
-                                    14887,
-                                    14891,
-                                    14897,
-                                    14923,
-                                    14929,
-                                    14939,
-                                    14947,
-                                    14951,
-                                    14957,
-                                    14969,
-                                    14983};
+  unsigned int primenumbers1[20] = {14503, 14519, 14533, 14537, 14543, 14549,
+                                    14551, 14557, 14561, 14563, 14591, 14593,
+                                    14621, 14627, 14629, 14633, 14639, 14653,
+                                    14657, 14669};
+  unsigned int primenumbers2[20] = {14813, 14821, 14827, 14831, 14843, 14851,
+                                    14867, 14869, 14879, 14887, 14891, 14897,
+                                    14923, 14929, 14939, 14947, 14951, 14957,
+                                    14969, 14983};
   int earray[20] = {7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31,
                     33, 35, 37, 39, 41, 43, 45};
   unsigned int *msg;
