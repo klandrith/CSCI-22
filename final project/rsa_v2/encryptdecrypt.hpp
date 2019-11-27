@@ -1,5 +1,5 @@
 /*  Programmer:     Kyle Landrith
-    Date Competed:  11/23/19
+    Date Competed:  11/27/19
     Resources:      geeksforgeeks.com
                     https://brilliant.org/wiki/rsa-encryption/
                     https://simple.wikipedia.org/wiki/RSA_algorithm
@@ -24,6 +24,14 @@ using std::cout;
 
 class RSA {
 public:
+  // constructor
+  RSA(unsigned int msgsize) {
+    msglength = msgsize;
+    msg = new unsigned int[msglength];
+    encryptedmsg = new unsigned int[msglength];
+    decryptedmsg = new char[msglength];
+  }
+  
   // encryption function
   void encrypt(string message) {
     int index1, index2, eindex;
@@ -42,7 +50,6 @@ public:
       if (gcd(e, phi) == 1) break;
     }
     d = modInverse(e, phi);
-    msglength = message.size();
     // convert the message from a string into an interger array
     // with type coercion
     for (int i = 0; i < msglength; i++) {
@@ -81,34 +88,24 @@ public:
   }
 
   // functions to return a string version of variables and keys
-  string getP() {
-    stringstream stream;
-    stream << p;
-    return stream.str();
+  long long unsigned int getP() {
+    return p;
   }
 
-  string getQ() {
-    stringstream stream;
-    stream << q;
-    return stream.str();
+  long long unsigned int getQ() {
+    return q;
   }
 
-  string getN() {
-    stringstream stream;
-    stream << n;
-    return stream.str();
+  long long unsigned int getN() {
+    return n;
   }
 
-  string getE() {
-    stringstream stream;
-    stream << e;
-    return stream.str();
+  long long unsigned int getE() {
+    return e;
   }
 
-  string getD() {
-    stringstream stream;
-    stream << d;
-    return stream.str();
+  long long unsigned int getD() {
+    return d;
   }
 
 private:
@@ -224,7 +221,7 @@ private:
                                     14983};
   int earray[20] = {7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31,
                     33, 35, 37, 39, 41, 43, 45};
-  unsigned int msg[1000];
-  unsigned int encryptedmsg[1000];
-  char decryptedmsg[1000];
+  unsigned int *msg;
+  unsigned int *encryptedmsg;
+  char *decryptedmsg;
 };

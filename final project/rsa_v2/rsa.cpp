@@ -1,5 +1,5 @@
 /*  Programmer:     Kyle Landrith
-    Date Competed:  11/23/19
+    Date Competed:  11/27/19
     Resources:      geeksforgeeks.com
                     https://brilliant.org/wiki/rsa-encryption/
                     https://simple.wikipedia.org/wiki/RSA_algorithm
@@ -27,12 +27,12 @@ int main() {
   int selection = 0;
   string message;
   CinReader reader;
-  RSA rsa;
 
   do {
     ClearScreen();
-    cout  << "Enter the message to encrypt: [1000 character max]\n";
+    cout  << "Enter the message to encrypt:\n";
     getline(cin, message);
+    RSA rsa(message.size());
     rsa.encrypt(message);
 
     cout << "\nRandom prime numbers have been selected for use in\n"
