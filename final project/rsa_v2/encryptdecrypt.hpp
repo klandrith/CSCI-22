@@ -47,14 +47,12 @@ public:
     }
   }
 
-  /*
   // destructor
   ~RSA() {
-    delete msg;
-    delete encryptedmsg;
-    delete decryptedmsg;
+    delete []msg;
+    delete []encryptedmsg;
+    delete []decryptedmsg;
   }
-  */
 
   // encryption function
   void encrypt(string message) {
