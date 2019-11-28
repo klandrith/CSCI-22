@@ -25,7 +25,6 @@ using std::rand;
 using std::string;
 using std::stringstream;
 using std::stoi;
-using std::cout;
 
 class RSA {
 public:
@@ -90,7 +89,8 @@ public:
       stringstream stream;
       stream << modExpo(encryptedmsg[i], d, n);
       str = stream.str();
-      decryptedmsg[i] = stol(str);
+      decryptedmsg[i] = stoi(str);
+      stream.ignore();
     }
   }
 

@@ -50,7 +50,7 @@ int main() {
     cout << "\nEncrypted messaged is:\n" << rsa.getEncrypted() << endl;
     cout << "\nDecrypting message..." << endl;
     rsa.decrypt();
-    cout << "\n\nDecrypted message is: \n" << rsa.getDecrypted() << endl;
+    cout << "\nDecrypted message is: \n" << rsa.getDecrypted() << endl;
     cout << "\n\nEnter 0 to exit, 1 to encrypt another message: ";
     selection = reader.readInt(0, 1);
   } while(selection == 1);
