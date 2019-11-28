@@ -7,7 +7,7 @@
     Description:    A simple program to perform RSA encryption on a string message
                     entered through console input. Generates random keys each time
                     the program is ran (out of two sets of five 290 digit primes).
-                    Key strength is approximately 1924bit.
+                    Key length is approximately 1954 bits.
                     May possibly adapt it in the future to work
                     with file input and file output.
 */
