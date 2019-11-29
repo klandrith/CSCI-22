@@ -8,7 +8,7 @@
     Description:    A simple program to perform RSA encryption on a string message
                     entered through console input (ASCII characters only).
                     Generates random keys each time the program is ran.
-                    Key length is ~2048 bits.
+                    Key length is ~1024 bits.
                     May possibly adapt it in the future to work
                     with file input and file output, as well as padding.
                     [note:] This project uses the NTL library for handling large
@@ -17,7 +17,6 @@
 */
 #include <iostream>
 #include <string>
-#include <unistd.h>
 #include <chrono>
 #include "CinReader.h"
 #include "encryptdecrypt.hpp"

@@ -37,7 +37,7 @@ public:
     this->encryptedmsg = new ZZ[msglength];
     this->decryptedmsg = new char[msglength];
     long l;
-    l = 1024;
+    l = 512;
     long error;
     error = 80;
     this->p = GenGermainPrime_ZZ(l, error);
