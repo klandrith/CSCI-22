@@ -17,7 +17,7 @@
 #include <string>
 #include <sstream>
 #include <cassert>
-#include "include/NTL/ZZ.h"
+#include <NTL/ZZ.h>
 
 using std::string;
 using std::stringstream;
