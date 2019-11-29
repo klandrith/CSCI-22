@@ -17,19 +17,14 @@
 #pragma once
 
 //#define NDEBUG
-#include <ctime>
 #include <string>
 #include <sstream>
-#include <iostream>
 #include <cassert>
 #include <NTL/ZZ.h>
-#include <sstream>
 
-using std::rand;
 using std::string;
 using std::stringstream;
 using std::stoi;
-using std::stringstream;
 using namespace NTL;
 
 class RSA {
