@@ -17,10 +17,12 @@
 #include <string>
 #include <sstream>
 #include <NTL/ZZ.h>
+#include <ctime>
 
 using std::string;
 using std::stringstream;
 using std::stoi;
+using std::rand;
 using namespace NTL;
 
 class RSA {
@@ -49,22 +51,27 @@ public:
     error = 80;
     this->p = 1;
     this->q = 1;
+    // generate 1024 bit primes that are different
     while (p == q) {
       this->p = GenGermainPrime_ZZ(primelength, error);
       this->q = GenGermainPrime_ZZ(primelength, error);
     }
+    // seed pseudo random number generator
+    srand(time(0));
     ZZ seed;
-    seed = 555;
+    seed = rand() % 9999999 + 1;
     void SetSeed(const ZZ& seed);
+    // assign n and phi values
     this->n = this->p * this->q;
     this->phi = (this->p - 1) * (this->q - 1);
-    // test if e and phi are coprime, if not change value of e until they are
     ZZ maxe;
     maxe = 9999;
+    // test if e and phi are coprime, if not change value of e until they are
     while (true) {
       this->e = RandomBnd(maxe);
       if (GCD(this->e, this->phi) == 1 && this->e > 7) break;
     }
+    // get value for d (de = 1 mod phi)
     this->d = InvMod(this->e, this->phi);
     // convert the message from a string into a ZZ array
     // with type coercion
@@ -75,6 +82,7 @@ public:
     for (int i = 0; i < this->msglength; i++) {
       ZZ intmsg;
       intmsg = this->msg[i];
+      // call modular exponention function to encrypt message
       this->encryptedmsg[i] = PowerMod(intmsg, this->e, this->n);
     }
   }
@@ -84,6 +92,7 @@ public:
     for (int i = 0; i < this->msglength; i++) {
       string str;
       stringstream stream;
+      // call modular exponention function to decrypt message
       stream << PowerMod(this->encryptedmsg[i], this->d, this->n);
       //debugging code
       try {
