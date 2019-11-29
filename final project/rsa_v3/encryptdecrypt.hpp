@@ -145,10 +145,11 @@ public:
     return stream.str();
   }
 
+// function to count the bits in encryption keys
 int countBits() {
   int count = 0;
   ZZ temp = this->n;
-  // While loop will run until we get n = 0
+  // While loop will run until we get temp = 0
   while(temp > 0) {
     count++;
     // We are shifting n to right by 1
