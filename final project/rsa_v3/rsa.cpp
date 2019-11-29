@@ -63,7 +63,7 @@ int main() {
          << "\nPrivate key is: \nn:\n" << rsa.getN() << "\nd:\n" << rsa.getD()
          << "\n"
          << "\nMessage took " << durationEncrypt.count() << "ms to encrypt...\n"
-         << "\nMessage took " << durationDecrypt.count() << "ms to decrypt...\n"
+         << "Message took " << durationDecrypt.count() << "ms to decrypt...\n"
          << "\nDecrypted message is: \n" << rsa.getDecrypted() << endl
          << "\n\nEnter 0 to exit, 1 to encrypt another message: ";
 
