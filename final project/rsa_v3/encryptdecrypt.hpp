@@ -1,6 +1,6 @@
 
 /*  Programmer:     Kyle Landrith
-    Date Competed:  11/27/19
+    Date Competed:  11/29/19
     Resources:      https://brilliant.org/wiki/rsa-encryption/
                     https://simple.wikipedia.org/wiki/RSA_algorithm
                     https://en.wikipedia.org/wiki/Modular_exponentiation#Pseudocode
@@ -61,11 +61,6 @@ public:
 
   // encryption function
   void encrypt(string message) {
-    int index1, index2, eindex;
-    // Seed the Random Number Generator
-    srand(time(0));
-    index1 = rand() % 10;
-    index2 = rand() % 5;
     this->n = this->p * this->q;
     this->phi = (this->p - 1) * (this->q - 1);
     // test if e and phi are coprime, if not change value of e until they are
