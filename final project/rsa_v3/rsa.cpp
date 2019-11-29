@@ -51,17 +51,17 @@ int main() {
          << "generating the public and private keys. \n\np: " << rsa.getP();
     cout << "\n\nq: " << rsa.getQ() <<"\n"
          << "\nA random odd integer that is coprime to (p - 1) * (q - 1)\n"
-         << "has been selected for the value of e (e = " << rsa.getE() << ").\n";
+         << "has been selected for the value of e (e = " << rsa.getE() << ").\n"
+         << "\nMessage took " << durationEncrypt.count() << "ms to encrypt...\n"
+         << "\nKey length is " << rsa.countBits() << " bits.\n";
     Continue("Press any key to display the public key...");
     cout << "\nPublic key is: \nn:\n" << rsa.getN() << "\ne:\n" << rsa.getE()
          << "\n";
     Continue("Press any key to display the private key...");
-    cout << "\nPrivate key is: \nn:\n" << rsa.getN() << "\nd:\n" << rsa.getD()
-         << "\n"
-         << "\nKey length is " << rsa.countBits() << " bits.\n";
+    cout << "\nPrivate key is: \nn:\n" << rsa.getN() << "\nd:\n" << rsa.getD() << endl;
     Continue("Press any key to display encrypted message...");
-    cout << "\nEncrypted messaged is:\n" << rsa.getEncrypted() << endl
-         << "\nMessage took " << durationEncrypt.count() << "ms to encrypt...\n";
+    cout << "\nEncrypted messaged is:\n" << rsa.getEncrypted() << endl;
+
     Continue("Press any key to begin decryption...");
 
     auto startDecrypt = high_resolution_clock::now();
