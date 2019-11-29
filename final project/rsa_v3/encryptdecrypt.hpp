@@ -1,17 +1,15 @@
-
 /*  Programmer:     Kyle Landrith
     Date Competed:  11/29/19
     Resources:      https://brilliant.org/wiki/rsa-encryption/
                     https://simple.wikipedia.org/wiki/RSA_algorithm
-                    https://en.wikipedia.org/wiki/Modular_exponentiation#Pseudocode
-                    https://www.geeksforgeeks.org/multiplicative-inverse-under-modulo-m/
+                    https://www.shoup.net/ntl/
+                    https://www.geeksforgeeks.org/measure-execution-time-function-cpp/
                     https://www.includehelp.com/cpp-programs/find-total-number-of-bits-required-to-represent-a-number-in-binary.aspx
     Description:    A class implementation and declaration to implement simple RSA
-                    encryption.
-                    [note: prime numbers are originally stored in a string array
-                    because the ttmath library will not allow initializing integers
-                    to that large of a number, however it will support it, so it has
-                    to be assigned as a string and then converted]
+                    encryption on ASCII string input.
+                    [note:] This project uses the NTL library for handling large
+                    integer values and to perform various arithmetic operations
+                    necessary for the RSA encryption/decryption algorithm.
 */
 
 #pragma once

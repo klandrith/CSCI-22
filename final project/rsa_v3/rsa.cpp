@@ -2,13 +2,13 @@
     Date Competed:  11/29/19
     Resources:      https://brilliant.org/wiki/rsa-encryption/
                     https://simple.wikipedia.org/wiki/RSA_algorithm
-                    https://en.wikipedia.org/wiki/Modular_exponentiation#Pseudocode
-                    https://www.geeksforgeeks.org/multiplicative-inverse-under-modulo-m/
+                    https://www.shoup.net/ntl/
                     https://www.geeksforgeeks.org/measure-execution-time-function-cpp/
+                    https://www.includehelp.com/cpp-programs/find-total-number-of-bits-required-to-represent-a-number-in-binary.aspx
     Description:    A simple program to perform RSA encryption on a string message
                     entered through console input (ASCII characters only).
                     Generates random keys each time the program is ran.
-                    Key length is ~1024 bits.
+                    Key length is ~2048 bits.
                     May possibly adapt it in the future to work
                     with file input and file output, as well as padding.
                     [note:] This project uses the NTL library for handling large
