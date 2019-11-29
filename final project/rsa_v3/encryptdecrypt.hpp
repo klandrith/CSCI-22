@@ -16,7 +16,6 @@
 
 #include <string>
 #include <sstream>
-#include <cassert>
 #include <NTL/ZZ.h>
 
 using std::string;
