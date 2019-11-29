@@ -16,11 +16,10 @@
 
 #pragma once
 
-//#define NDEBUG
 #include <string>
 #include <sstream>
 #include <cassert>
-#include <NTL/ZZ.h>
+#include "include/NTL/ZZ.h"
 
 using std::string;
 using std::stringstream;
@@ -36,15 +35,6 @@ public:
     this->msg = new ZZ[msglength];
     this->encryptedmsg = new ZZ[msglength];
     this->decryptedmsg = new char[msglength];
-    long l;
-    l = 512;
-    long error;
-    error = 80;
-    this->p = GenGermainPrime_ZZ(l, error);
-    this->q = GenGermainPrime_ZZ(l, error);
-    ZZ seed;
-    seed = 555;
-    void SetSeed(const ZZ& seed);
   }
 
   // destructor
@@ -56,6 +46,19 @@ public:
 
   // encryption function
   void encrypt(string message) {
+    long primelength;
+    primelength = 1024;
+    long error;
+    error = 80;
+    this->p = 1;
+    this->q = 1;
+    while (p == q) {
+      this->p = GenGermainPrime_ZZ(primelength, error);
+      this->q = GenGermainPrime_ZZ(primelength, error);
+    }
+    ZZ seed;
+    seed = 555;
+    void SetSeed(const ZZ& seed);
     this->n = this->p * this->q;
     this->phi = (this->p - 1) * (this->q - 1);
     // test if e and phi are coprime, if not change value of e until they are
@@ -85,7 +88,7 @@ public:
       string str;
       stringstream stream;
       stream << PowerMod(this->encryptedmsg[i], this->d, this->n);
-      //testing code
+      //debugging code
       try {
         this->decryptedmsg[i] = stoi(stream.str());
       } catch (const std::exception &e) {
@@ -162,7 +165,7 @@ int countBits() {
 private:
   // variables needed for encryption/decryption
   ZZ p, q, phi, n, e, d;
-  int msglength;
+  unsigned int msglength;
   ZZ *msg;
   ZZ *encryptedmsg;
   char *decryptedmsg;
