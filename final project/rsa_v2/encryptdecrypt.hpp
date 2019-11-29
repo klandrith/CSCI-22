@@ -3,7 +3,7 @@
     Date Competed:  11/27/19
     Resources:      https://brilliant.org/wiki/rsa-encryption/
                     https://simple.wikipedia.org/wiki/RSA_algorithm
-                    https://don.p4ge.me/modular-exponentiation/programming
+                    https://en.wikipedia.org/wiki/Modular_exponentiation#Pseudocode
                     https://www.geeksforgeeks.org/multiplicative-inverse-under-modulo-m/
     Description:    A class implementation and declaration to implement simple RSA
                     encryption.
@@ -19,6 +19,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <cassert>
 #include "ttmath/ttmath.h"
 
 using std::rand;
@@ -30,19 +31,20 @@ class RSA {
 public:
   // constructor
   RSA(unsigned int msgsize) {
+    // initialize dynamic arrays and set msglength for array sizes
     msglength = msgsize;
     msg = new ttmath::Int<64>[msglength];
     encryptedmsg = new ttmath::Int<64>[msglength];
     decryptedmsg = new char[msglength];
+    // convert from strings to nummbers for prime numbers
+    // ttmath library does not support direct assignment
+    // of that large of a number without assigning it from a string
+    // for some unknown reason...
     for (int i = 0; i < 10; i++) {
-      stringstream stream;
-      stream << prime1string[i];
-      stream >> primenumbers1[i];
+      primenumbers1[i].FromString(prime1string[i], 10);
     }
     for (int i = 0; i < 5; i++) {
-      stringstream stream;
-      stream << prime2string[i];
-      stream >> primenumbers2[i];
+      primenumbers2[i].FromString(prime2string[i], 10);
     }
   }
 
@@ -66,8 +68,7 @@ public:
     phi = (p - 1) * (q - 1);
     // test if e and phi are coprime, if not change value of e until they are
     while (true) {
-      eindex = rand() % 20;
-      e = earray[eindex];
+      e = makeE();
       if (gcd(e, phi) == 1) break;
     }
     d = modInverse(e, phi);
@@ -78,7 +79,7 @@ public:
     }
     // encrypt the message and store it as an integer array
     for (int i = 0; i < msglength; i++) {
-      encryptedmsg[i] = modExpo(msg[i], e, n);
+      encryptedmsg[i] = modPow(msg[i], e, n);
     }
   }
 
@@ -87,20 +88,29 @@ public:
     for (int i = 0; i < msglength; i++) {
       string str;
       stringstream stream;
-      stream << modExpo(encryptedmsg[i], d, n);
+      stream << modPow(encryptedmsg[i], d, n);
       str = stream.str();
-      decryptedmsg[i] = stoi(str);
-      stream.ignore();
+      //testing code
+      try {
+        decryptedmsg[i] = stoi(str);
+      } catch (const std::exception &e) {
+        std::cout << e.what() << std::endl;
+        std::cout << "current value of string stream to be stoi'd is: " << stream.str() << std::endl;
+      }
+
+      stream.ignore(str.size());
     }
   }
 
   // function to return a string representing encrytped message
   string getEncrypted() {
     stringstream stream;
+    string str;
     for (int i = 0; i < msglength; i++) {
       stream << encryptedmsg[i];
+      str += encryptedmsg[i].ToString(16);
     }
-    return stream.str();
+    return str;
   }
 
   // function to return a string representing decrypted message
@@ -144,35 +154,25 @@ public:
   }
 
 private:
-    // function to perform modular exponentiation
+    // function to perform modular exponentiation to solve base^exp % mod
     // modular exponentiation splits the exponents into component parts,
     // ex: 2^90 = 2^50 * 2^40 so that we avoid overrunning the register size when calculating
     // even moderately large exponents such as is done when performing RSA encryption prior
-    // to calling modulus on them for encryption/decryption. Without this, only small
-    // prime values may be used to generate the keys. This implementation converts the exponent
-    // into a binary and then performs a series of arithmetic on the base to arrive at the result
-    //
-    // ex: 2^2 mod 3
-    // result = 1
-    // (first loop)
-    // remain = 2 % 2 = 0
-    // exp = 2 / 2 = 1
-    // if (remain == 1) result = (1 * 2) % 3 [FALSE]
-    // base = base^2 % 3 = 1
-    // (second loop)
-    // remain = 1 % 2 = 1
-    // exp = 1 / 2 = 0
-    // if (remain == 1) result = (1 * 1) % 3 = 1
-    // end of loop [exp is 0]
-    // return result [1]
-    //
-    ttmath::Int<64> modExpo(ttmath::Int<64> base, ttmath::Int<64> exp, ttmath::Int<64> mod) {
-      ttmath::Int<64> remain;
+    // to calling modulus on them for encryption/decryption, as well as to decrease overall
+    // computation time. Without this, only small prime values may be used to generate the keys.
+    // This implementation is called the right to left binary method and is based on
+    // pseudocode from Applied Cryptograpgy by Bruce Schneier
+    // computes in O(exponent) time
+    ttmath::Int<64> modPow(ttmath::Int<64> base, ttmath::Int<64> exp, ttmath::Int<64> mod) {
+      if (mod == 1) return 0;
+      ttmath::Int<64> test1 = (mod - 1);
+      ttmath::Int<64> test2 = (mod - 1);
+      assert(!test1.Mul(test2));
       ttmath::Int<64> result = 1;
-      while (exp != 0) {
-        remain = exp % 2;
-        exp = exp / 2;
-        if (remain == 1) result = (result * base) % mod;
+      base = base % mod;
+      while (exp > 0) {
+        if (exp % 2 == 1) result = (result * base) % mod;
+        exp = exp >> 1;
         base = (base * base) % mod;
       }
       return result;
@@ -210,6 +210,14 @@ private:
       return gcd(b, a % b);
     }
 
+    // function to generate random e values
+    unsigned int makeE() {
+      // Seed the Random Number Generator
+      srand(time(0));
+      unsigned int e = rand() % 1001 + 7;
+      return e;
+    }
+
   // variables needed for encryption/decryption
   ttmath::Int<64> p, q, phi, n, e, d;
   int msglength;
@@ -230,8 +238,6 @@ private:
                             "319705304701141539155720137200974664666792526059405792539680974929469783512821793995613718943171723765238853752439032835985158829038528214925658918372196742089464683960239919950882355844766055365179937610326127675178857306260955550407044463370239890187189750909036833976197804646589380690779463976173",
                             "250556952327646214427246777488032351712139094643988394726193347352092526616305469220133287929222242315761834129196430398011844978805263868522770723615504744438638381670321613949280530254014602887707960375752016807510602846590492724216092721283154099469988532068424757856392563537802339735359978831013",
                             "290245329165570025116016487217740287508837913295571609463914348778319654489118435855243301969001872061575755804802874062021927719647357060447135321577028929269578574760547268310055056867386875959045119093967972205124270441648450825188877095173754196346551952542599226295413057787340278528252358809329"};
-  int earray[20] = {9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33,
-                    35, 37, 39, 41, 43, 45, 47};
   ttmath::Int<64> *msg;
   ttmath::Int<64> *encryptedmsg;
   char *decryptedmsg;
