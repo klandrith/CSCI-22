@@ -28,7 +28,7 @@ using std::getline;
 using namespace std::chrono;
 
 void ClearScreen();
-void Continue(string message);
+void EnterContinue(string message);
 
 int main() {
   int selection = 0;
@@ -48,7 +48,7 @@ int main() {
 
     cout << "\n\n\nEnter the message to encrypt and press enter:\n";
     getline(cin, message);
-    Continue("Press any key to generate keys...");
+    EnterContinue("Press enter to generate keys...");
     auto startKey = high_resolution_clock::now();
     rsa.generateKeys();
     auto stopKey = high_resolution_clock::now();
@@ -61,22 +61,22 @@ int main() {
          << "has been selected for the value of e (e = " << rsa.getE() << ").\n"
          << "\nKey length is " << rsa.countBits() << " bits.\n";
     cout << "\nKeys took " << durationKey.count() << "ms to generate...\n";
-    Continue("Press any key to display the public key...");
+    EnterContinue("Press enter to display the public key...");
     cout << "\nPublic key is: \n\nn: " << rsa.getN() << "\n\ne: " << rsa.getE()
          << "\n";
-    Continue("Press any key to display the private key...");
+    EnterContinue("Press enter to display the private key...");
     cout << "\nPrivate key is: \n\nn: " << rsa.getN() << "\n\nd: " << rsa.getD() << endl;
 
-    Continue("Press any key to begin encryption...");
+    EnterContinue("Press enter to begin encryption...");
     auto startEncrypt = high_resolution_clock::now();
     rsa.encrypt(message);
     auto stopEncrypt = high_resolution_clock::now();
     auto durationEncrypt = duration_cast<microseconds>(stopEncrypt - startEncrypt);
     cout << "\nMessage took " << durationEncrypt.count() << "ms to encrypt...\n";
 
-    Continue("Press any key to display encrypted message...");
+    EnterContinue("Press enter to display encrypted message...");
     cout << "\nEncrypted messaged is:\n" << rsa.getEncrypted() << endl;
-    Continue("Press any key to begin decryption...");
+    EnterContinue("Press enter to begin decryption...");
 
     auto startDecrypt = high_resolution_clock::now();
     rsa.decrypt();
@@ -84,7 +84,7 @@ int main() {
     auto durationDecrypt = duration_cast<microseconds>(stopDecrypt - startDecrypt);
 
     cout << "Message took " << durationDecrypt.count() << "ms to decrypt...\n";
-    Continue("Press any key to display decrypted message...");
+    EnterContinue("Press enter to display decrypted message...");
     cout << "\nDecrypted message is: \n" << rsa.getDecrypted() << endl
          << "\n\nEnter 0 to exit, 1 to encrypt another message: ";
 
@@ -106,7 +106,7 @@ void ClearScreen() {
 }
 
 // function Continue displays a message prompts user to press any key to continue
-void Continue(string message) {
+void EnterContinue(string message) {
   CinReader reader;
   string enter_accept;
   cout << endl;
