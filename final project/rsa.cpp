@@ -38,30 +38,44 @@ int main() {
 
   do {
     ClearScreen();
-    cout  << "Enter the message to encrypt and press enter:\n";
-    getline(cin, message);
-    Continue("Press any key to begin encryption...");
+    cout << "***************************************************************\n"
+         << "*                                                             *\n"
+         << "*       ~~~\"Textbook\" RSA Algorithm Implementation~~~         *\n"
+         << "*                                                             *\n"
+         << "*                          Author: Kyle Landrith              *\n"
+         << "*                                                             *\n"
+         << "***************************************************************\n";
 
-    auto startEncrypt = high_resolution_clock::now();
-    rsa.encrypt(message);
-    auto stopEncrypt = high_resolution_clock::now();
-    auto durationEncrypt = duration_cast<microseconds>(stopEncrypt - startEncrypt);
+    cout << "\n\n\nEnter the message to encrypt and press enter:\n";
+    getline(cin, message);
+    Continue("Press any key to generate keys...");
+    auto startKey = high_resolution_clock::now();
+    rsa.generateKeys();
+    auto stopKey = high_resolution_clock::now();
+    auto durationKey = duration_cast<microseconds>(stopKey - startKey);
 
     cout << "\nRandom prime numbers have been selected for use in\n"
          << "generating the public and private keys. \n\np: " << rsa.getP();
     cout << "\n\nq: " << rsa.getQ() <<"\n"
          << "\nA random odd integer that is coprime to (p - 1) * (q - 1)\n"
          << "has been selected for the value of e (e = " << rsa.getE() << ").\n"
-         << "\nMessage took " << durationEncrypt.count() << "ms to encrypt...\n"
          << "\nKey length is " << rsa.countBits() << " bits.\n";
+    cout << "\nKeys took " << durationKey.count() << "ms to generate...\n";
     Continue("Press any key to display the public key...");
     cout << "\nPublic key is: \n\nn: " << rsa.getN() << "\n\ne: " << rsa.getE()
          << "\n";
     Continue("Press any key to display the private key...");
     cout << "\nPrivate key is: \n\nn: " << rsa.getN() << "\n\nd: " << rsa.getD() << endl;
+
+    Continue("Press any key to begin encryption...");
+    auto startEncrypt = high_resolution_clock::now();
+    rsa.encrypt(message);
+    auto stopEncrypt = high_resolution_clock::now();
+    auto durationEncrypt = duration_cast<microseconds>(stopEncrypt - startEncrypt);
+    cout << "\nMessage took " << durationEncrypt.count() << "ms to encrypt...\n";
+
     Continue("Press any key to display encrypted message...");
     cout << "\nEncrypted messaged is:\n" << rsa.getEncrypted() << endl;
-
     Continue("Press any key to begin decryption...");
 
     auto startDecrypt = high_resolution_clock::now();

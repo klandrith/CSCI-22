@@ -41,18 +41,8 @@ public:
     delete []decryptedmsg;
   }
 
-  // encryption function
-  void encrypt(string message) {
-    if (msg != nullptr) {
-      delete []msg;
-      delete []encryptedmsg;
-      delete []decryptedmsg;
-    }
-    // initialize dynamic arrays and set msglength for array sizes
-    this->msglength = message.size();
-    this->msg = new ZZ[msglength];
-    this->encryptedmsg = new ZZ[msglength];
-    this->decryptedmsg = new char[msglength];
+  // key generation function
+  void generateKeys() {
     // set bit length for prime numbers and error rate 2^(-error)
     // error rate is upper limit that generated numbers are not actually prime
     long primelength;
@@ -66,7 +56,7 @@ public:
       this->p = GenGermainPrime_ZZ(primelength, error);
       this->q = GenGermainPrime_ZZ(primelength, error);
     }
-    // seed pseudo random number generator
+    // seed pseudo random number generators
     srand(time(0));
     ZZ seed;
     seed = rand() % 9999999 + 1;
@@ -74,15 +64,30 @@ public:
     // assign n and phi values
     this->n = this->p * this->q;
     this->phi = (this->p - 1) * (this->q - 1);
-    ZZ maxe;
-    maxe = 9999;
+    // set bit length for e generation
+    long elength;
+    elength = 16;
     // test if e and phi are coprime, if not change value of e until they are
     while (true) {
-      this->e = RandomBnd(maxe);
-      if (GCD(this->e, this->phi) == 1 && this->e > 7) break;
+      this->e = RandomLen_ZZ(elength);
+      if (GCD(this->e, this->phi) == 1 && this->e > 1000) break;
     }
     // get value for d (de = 1 mod phi)
     this->d = InvMod(this->e, this->phi);
+  }
+
+  // encryption function
+  void encrypt(string message) {
+    if (msg != nullptr) {
+      delete []msg;
+      delete []encryptedmsg;
+      delete []decryptedmsg;
+    }
+    // initialize dynamic arrays and set msglength for array sizes
+    this->msglength = message.size();
+    this->msg = new ZZ[msglength];
+    this->encryptedmsg = new ZZ[msglength];
+    this->decryptedmsg = new char[msglength];
     // convert the message from a string into a ZZ array
     // with type coercion
     for (int i = 0; i < this->msglength; i++) {
