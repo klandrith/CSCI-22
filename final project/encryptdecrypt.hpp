@@ -42,11 +42,11 @@ public:
   }
 
   // key generation function
-  void generateKeys() {
+  void generateKeys(int keylength) {
     // set bit length for prime numbers and error rate 2^(-error)
     // error rate is upper limit that generated numbers are not actually prime
     long primelength;
-    primelength = 1024;
+    primelength = keylength;
     long error;
     error = 80;
     this->p = 1;
@@ -66,14 +66,20 @@ public:
     this->phi = (this->p - 1) * (this->q - 1);
     // set bit length for e generation
     long elength;
-    elength = 16;
+    elength = 64;
     // test if e and phi are coprime, if not change value of e until they are
     while (true) {
       this->e = RandomLen_ZZ(elength);
-      if (GCD(this->e, this->phi) == 1 && this->e > 1000) break;
+      if (GCD(this->e, this->phi) == 1 && this->e > 65535) break;
     }
     // get value for d (de = 1 mod phi)
     this->d = InvMod(this->e, this->phi);
+  }
+
+  void EncryptRSA(string message) {
+
+
+
   }
 
   // encryption function
@@ -92,30 +98,30 @@ public:
     // with type coercion
     for (int i = 0; i < this->msglength; i++) {
       this->msg[i] = message.at(i);
+      // add 2000 to ascii value prior to encryption
+      this->msg[i] += 2000;
     }
     // encrypt the message and store it as an integer array
     for (int i = 0; i < this->msglength; i++) {
-      ZZ intmsg;
-      intmsg = this->msg[i];
       // call modular exponention function to encrypt message
-      this->encryptedmsg[i] = PowerMod(intmsg, this->e, this->n);
+      this->encryptedmsg[i] = PowerMod(this->msg[i], this->e, this->n);
     }
   }
 
   // decryption function
   void decrypt() {
+    int temp;
     for (int i = 0; i < this->msglength; i++) {
       string str;
       stringstream stream;
       // call modular exponention function to decrypt message
       stream << PowerMod(this->encryptedmsg[i], this->d, this->n);
-      //debugging code
-      try {
-        this->decryptedmsg[i] = stoi(stream.str());
-      } catch (const std::exception &e) {
-        std::cout << e.what() << std::endl;
-        std::cout << "current value of string stream to be stoi'd is: " << stream.str() << std::endl;
-      }
+      // pass decrypted int to temp int variable
+      stream >> temp;
+      // minus 2000 to arrive at original ascii value
+      temp -= 2000;
+      this->decryptedmsg[i] = temp;
+      // clear stream for next round of for loop
       stream.ignore(stream.str().size());
     }
   }
