@@ -53,6 +53,8 @@ public:
     this->msg = new ZZ[msglength];
     this->encryptedmsg = new ZZ[msglength];
     this->decryptedmsg = new char[msglength];
+    // set bit length for prime numbers and error rate 2^(-error)
+    // error rate is chance that generated numbers are not actually prime
     long primelength;
     primelength = 1024;
     long error;
