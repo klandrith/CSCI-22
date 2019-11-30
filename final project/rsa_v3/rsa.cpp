@@ -34,13 +34,13 @@ int main() {
   int selection = 0;
   string message;
   CinReader reader;
+  RSA rsa;
 
   do {
     ClearScreen();
     cout  << "Enter the message to encrypt and press enter:\n";
     getline(cin, message);
     Continue("Press any key to begin encryption...");
-    RSA rsa(message.size());
 
     auto startEncrypt = high_resolution_clock::now();
     rsa.encrypt(message);
@@ -55,10 +55,10 @@ int main() {
          << "\nMessage took " << durationEncrypt.count() << "ms to encrypt...\n"
          << "\nKey length is " << rsa.countBits() << " bits.\n";
     Continue("Press any key to display the public key...");
-    cout << "\nPublic key is: \nn:\n" << rsa.getN() << "\ne:\n" << rsa.getE()
+    cout << "\nPublic key is: \n\nn: " << rsa.getN() << "\n\ne: " << rsa.getE()
          << "\n";
     Continue("Press any key to display the private key...");
-    cout << "\nPrivate key is: \nn:\n" << rsa.getN() << "\nd:\n" << rsa.getD() << endl;
+    cout << "\nPrivate key is: \n\nn: " << rsa.getN() << "\n\nd: " << rsa.getD() << endl;
     Continue("Press any key to display encrypted message...");
     cout << "\nEncrypted messaged is:\n" << rsa.getEncrypted() << endl;
 

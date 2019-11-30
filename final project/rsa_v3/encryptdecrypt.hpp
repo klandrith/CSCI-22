@@ -28,12 +28,10 @@ using namespace NTL;
 class RSA {
 public:
   // constructor
-  RSA(unsigned int msgsize) {
-    // initialize dynamic arrays and set msglength for array sizes
-    this->msglength = msgsize;
-    this->msg = new ZZ[msglength];
-    this->encryptedmsg = new ZZ[msglength];
-    this->decryptedmsg = new char[msglength];
+  RSA() {
+    msg = nullptr;
+    encryptedmsg = nullptr;
+    decryptedmsg = nullptr;
   }
 
   // destructor
@@ -45,6 +43,16 @@ public:
 
   // encryption function
   void encrypt(string message) {
+    if (msg != nullptr) {
+      delete []msg;
+      delete []encryptedmsg;
+      delete []decryptedmsg;
+    }
+    // initialize dynamic arrays and set msglength for array sizes
+    this->msglength = message.size();
+    this->msg = new ZZ[msglength];
+    this->encryptedmsg = new ZZ[msglength];
+    this->decryptedmsg = new char[msglength];
     long primelength;
     primelength = 1024;
     long error;
