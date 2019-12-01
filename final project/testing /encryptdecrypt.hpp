@@ -105,6 +105,7 @@ public:
       unsigned char eblock[keyLen];
       eblock[0] = 0x01;
       eblock[1] = 0x02;
+      srand(time(0));
       // fill PS
       for (int j = 2; j < 2 + keyLen; j++) {
         ZZ random = RandomLen_ZZ(255);

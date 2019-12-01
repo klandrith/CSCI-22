@@ -22,8 +22,8 @@
 #include "CinReader.h"
 #include "encryptdecrypt.hpp"
 
-using std::cin;
 using std::cout;
+using std::endl;
 using std::string;
 using std::getline;
 using namespace std::chrono;

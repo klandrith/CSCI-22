@@ -49,6 +49,8 @@ int main() {
   char message;
   cout << "Enter a single character to encrypt: ";
   cin >> message;
+
+  
   unsigned int asciiValue = message;
   unsigned int keyLen = (countBits(n) + 7) / 8;
   unsigned int psLen = keyLen - (countBits(asciiValue) / 8) - 3;
