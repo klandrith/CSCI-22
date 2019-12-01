@@ -5,6 +5,7 @@
                     https://www.shoup.net/ntl/
                     https://www.geeksforgeeks.org/measure-execution-time-function-cpp/
                     https://www.includehelp.com/cpp-programs/find-total-number-of-bits-required-to-represent-a-number-in-binary.aspx
+                    https://eli.thegreenplace.net/2019/rsa-theory-and-implementation/
     Description:    A simple program to perform RSA encryption on a string message
                     entered through console input (ASCII characters only).
                     Generates random keys each time the program is ran.

@@ -5,6 +5,7 @@
                     https://www.shoup.net/ntl/
                     https://www.geeksforgeeks.org/measure-execution-time-function-cpp/
                     https://www.includehelp.com/cpp-programs/find-total-number-of-bits-required-to-represent-a-number-in-binary.aspx
+                    https://eli.thegreenplace.net/2019/rsa-theory-and-implementation/
     Description:    A class implementation and declaration to implement simple RSA
                     encryption on ASCII string input.
                     [note:] This project uses the NTL library for handling large
