@@ -45,13 +45,13 @@ int main() {
                           'Q', 'R', 'S', 'T', 'U', 'V', 'W',
                           'X', 'Y', 'Z'};
 
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 10000; i++) {
       ZZ randnumber = RandomLen_ZZ(51);
       unsigned int index;
       conv(index, randnumber);
       testmessage = testmessage + alphabet[rand() % 52];
     }
-    rsa.generateKeys(256);
+    rsa.generateKeys(1024);
     rsa.EncryptRSA(testmessage);
     rsa.DecryptRSA();
     inputmessage = testmessage;

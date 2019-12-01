@@ -244,7 +244,6 @@ private:
   // variables needed for encryption/decryption
   ZZ p, q, phi, n, e, d;
   unsigned int msglength;
-
   ZZ *encryptedmsg;
   ZZ *decryptedmsg;
   char *charDecryptMsg;
