@@ -31,22 +31,20 @@ void ClearScreen();
 void EnterContinue(string message);
 
 int main() {
-  // create instance of cinreader for input as wekk as isntance of RSA class
   int selection = 0;
   string message;
   CinReader reader;
   RSA rsa;
 
-  // menu loop
   do {
     ClearScreen();
-    cout << "****************************************************************\n"
-         << "*                                                              *\n"
-         << "*              ~~~RSA Algorithm Implementation~~~              *\n"
-         << "*                                                              *\n"
-         << "*                          Author: Kyle Landrith               *\n"
-         << "*                                                              *\n"
-         << "****************************************************************\n";
+    cout << "***************************************************************\n"
+         << "*                                                             *\n"
+         << "*       ~~~\"Textbook\" RSA Algorithm Implementation~~~         *\n"
+         << "*                                                             *\n"
+         << "*                          Author: Kyle Landrith              *\n"
+         << "*                                                             *\n"
+         << "***************************************************************\n";
 
     cout << "\n\n\nEnter the message to encrypt and press enter:\n";
     getline(cin, message);
@@ -64,7 +62,7 @@ int main() {
     cout << "\n\nq: " << rsa.getQ() <<"\n"
          << "\nA random odd integer that is coprime to (p - 1) * (q - 1)\n"
          << "has been selected for the value of e (e = " << rsa.getE() << ").\n"
-         << "\nKey length is " << rsa.keyLength() << " bits.\n";
+         << "\nKey length is " << rsa.countBits() << " bits.\n";
     cout << "\nKeys took " << durationKey.count() << "ms to generate...\n";
     EnterContinue("Press enter to display the public key...");
     cout << "\nPublic key is: \n\nn: " << rsa.getN() << "\n\ne: " << rsa.getE()
@@ -74,7 +72,7 @@ int main() {
 
     EnterContinue("Press enter to begin encryption...");
     auto startEncrypt = high_resolution_clock::now();
-    rsa.EncryptRSA(message);
+    rsa.encrypt(message);
     auto stopEncrypt = high_resolution_clock::now();
     auto durationEncrypt = duration_cast<microseconds>(stopEncrypt - startEncrypt);
     cout << "\nMessage took " << durationEncrypt.count() << "ms to encrypt...\n";
@@ -84,7 +82,7 @@ int main() {
     EnterContinue("Press enter to begin decryption...");
 
     auto startDecrypt = high_resolution_clock::now();
-    rsa.DecryptRSA();
+    rsa.decrypt();
     auto stopDecrypt = high_resolution_clock::now();
     auto durationDecrypt = duration_cast<microseconds>(stopDecrypt - startDecrypt);
 

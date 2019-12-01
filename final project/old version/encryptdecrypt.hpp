@@ -23,23 +23,22 @@ using std::string;
 using std::stringstream;
 using std::stoi;
 using std::rand;
-using std::exception;
 using namespace NTL;
 
 class RSA {
 public:
   // constructor
   RSA() {
+    this->msg = nullptr;
     this->encryptedmsg = nullptr;
     this->decryptedmsg = nullptr;
-    this->charDecryptMsg = nullptr;
   }
 
   // destructor
   ~RSA() {
+    delete []msg;
     delete []encryptedmsg;
     delete []decryptedmsg;
-    delete []charDecryptMsg;
   }
 
   // key generation function
@@ -77,84 +76,45 @@ public:
     this->d = InvMod(this->e, this->phi);
   }
 
-  void EncryptRSA(string message) {
-    this->msglength = message.size();
-    if (this->encryptedmsg != nullptr) {
+  // encryption function
+  void encrypt(string message) {
+    if (msg != nullptr) {
+      delete []msg;
       delete []encryptedmsg;
       delete []decryptedmsg;
-      delete []charDecryptMsg;
     }
+    // initialize dynamic arrays and set msglength for array sizes
+    this->msglength = message.size();
+    this->msg = new ZZ[this->msglength];
     this->encryptedmsg = new ZZ[this->msglength];
-    this->decryptedmsg = new ZZ[this->msglength];
-    this->charDecryptMsg = new char[this->msglength];
-    // loop through entire message and encrypt each character
+    this->decryptedmsg = new char[this->msglength];
+    // convert the message from a string into a ZZ array
+    // with type coercion
     for (int i = 0; i < this->msglength; i++) {
-      // create instance of stringstream
-      stringstream stream;
-      // seed RNG
-      srand(time(0));
-      unsigned int asciiValue = message.at(i);
-      unsigned int keyLen = (countBits(n) + 7) / 8;
-      // add padding to message
-      // eblock = 01 || 02 || random padding || 00 || message
-      unsigned int psLen = keyLen - (countBits(asciiValue) / 8) - 3;
-      unsigned char eblock[keyLen];
-      eblock[0] = 0x01;
-      eblock[1] = 0x02;
-      srand(time(0));
-      // fill PS
-      for (int j = 2; j < 2 + keyLen; j++) {
-        eblock[j] = rand() % j + 1;
-        while (eblock[j] == 255) eblock[j] = rand() % j + 1;
-      }
-      eblock[2 + psLen] = 0x00;
-      // copy the current ascii character value into last block
-      eblock[3 + psLen] = asciiValue;
-      // loop through and output contents of array into stream
-      for (int j = 0; j <= keyLen; j++) {
-        unsigned int tempint = eblock[j];
-        stream << tempint;
-      }
-      // dump contents of stream into ZZ object
-      ZZ tempZZ;
-      ZZ encrypted;
-      stream >> tempZZ;
-      // encrypt current msgnum
-      encrypted = PowerMod(tempZZ, e, n);
-      this->encryptedmsg[i] = encrypted;
-      // clear stream for next round of for loop
-      stream.ignore(stream.str().size());
+      this->msg[i] = message.at(i);
+      // add 2000 to ascii value prior to encryption
+      this->msg[i] += 2000;
     }
-  }
-
-  // encryption function
-  ZZ encrypt(ZZ mnum) {
-    return PowerMod(mnum, this->e, this->n);
+    // encrypt the message and store it as an integer array
+    for (int i = 0; i < this->msglength; i++) {
+      // call modular exponention function to encrypt message
+      this->encryptedmsg[i] = PowerMod(this->msg[i], this->e, this->n);
+    }
   }
 
   // decryption function
-  void DecryptRSA() {
+  void decrypt() {
+    int temp;
     for (int i = 0; i < this->msglength; i++) {
-      decryptedmsg[i] = PowerMod(this->encryptedmsg[i], d, n);
+      string str;
       stringstream stream;
-      stream << decryptedmsg[i];
-      string tempstring = stream.str();
-      if (tempstring.at(0) != '1') {
-        throw std::invalid_argument("FIRST BLOCK OF PADDING DOES NOT MATCH!!!");
-      }
-      if (tempstring.at(1) != '2') {
-        throw std::invalid_argument("SECOND BLOCK OF PADDING DOES NOT MATCH!!!");
-      }
-      // clear stream for next round of for loop
-      stream.ignore(stream.str().size());
-    }
-    for (int i = 0; i < this->msglength; i++) {
-      stringstream stream;
-      string temp;
-      stream << decryptedmsg[i];
+      // call modular exponention function to decrypt message
+      stream << PowerMod(this->encryptedmsg[i], this->d, this->n);
+      // pass decrypted int to temp int variable
       stream >> temp;
-      string decryptedMsg = temp.substr(temp.size() - 3, string::npos);
-      charDecryptMsg[i] = stoi(decryptedMsg);
+      // minus 2000 to arrive at original ascii value
+      temp -= 2000;
+      this->decryptedmsg[i] = temp;
       // clear stream for next round of for loop
       stream.ignore(stream.str().size());
     }
@@ -173,7 +133,7 @@ public:
   string getDecrypted() {
     stringstream stream;
     for (int i = 0; i < this->msglength; i++) {
-      stream << this->charDecryptMsg[i];
+      stream << this->decryptedmsg[i];
     }
     return stream.str();
   }
@@ -209,32 +169,25 @@ public:
     return stream.str();
   }
 
-  // function to count the bits in encryption keys
-  template <typename T>
-  int countBits(T value) {
-    int count = 0;
-    T temp = value;
-    // While loop will run until we get temp = 0
-    while(temp > 0) {
-      count++;
-      // We are shifting n to right by 1
-      // place as explained above
-      temp = temp >> 1;
-  	}
-  	return count;
-  }
-
-  // function to return bit length of N key
-  int keyLength() {
-    return countBits(this->n);
-  }
+// function to count the bits in encryption keys
+int countBits() {
+  int count = 0;
+  ZZ temp = this->n;
+  // While loop will run until we get temp = 0
+  while(temp > 0) {
+    count++;
+    // We are shifting n to right by 1
+    // place as explained above
+    temp = temp >> 1;
+	}
+	return count;
+}
 
 private:
   // variables needed for encryption/decryption
   ZZ p, q, phi, n, e, d;
   unsigned int msglength;
-
+  ZZ *msg;
   ZZ *encryptedmsg;
-  ZZ *decryptedmsg;
-  char *charDecryptMsg;
+  char *decryptedmsg;
 };
