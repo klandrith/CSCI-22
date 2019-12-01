@@ -29,9 +29,9 @@ class RSA {
 public:
   // constructor
   RSA() {
-    msg = nullptr;
-    encryptedmsg = nullptr;
-    decryptedmsg = nullptr;
+    this->msg = nullptr;
+    this->encryptedmsg = nullptr;
+    this->decryptedmsg = nullptr;
   }
 
   // destructor
@@ -91,9 +91,9 @@ public:
     }
     // initialize dynamic arrays and set msglength for array sizes
     this->msglength = message.size();
-    this->msg = new ZZ[msglength];
-    this->encryptedmsg = new ZZ[msglength];
-    this->decryptedmsg = new char[msglength];
+    this->msg = new ZZ[this->msglength];
+    this->encryptedmsg = new ZZ[this->msglength];
+    this->decryptedmsg = new char[this->msglength];
     // convert the message from a string into a ZZ array
     // with type coercion
     for (int i = 0; i < this->msglength; i++) {
