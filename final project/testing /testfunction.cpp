@@ -45,12 +45,12 @@ int main() {
                           'Q', 'R', 'S', 'T', 'U', 'V', 'W',
                           'X', 'Y', 'Z'};
 
-    unsigned int numchars = rand() % 9999 + 1; 
+    unsigned int numchars = rand() % 20 + 1;
     for (int i = 0; i < numchars; i++) {
       unsigned int index = rand() % 52;
       testmessage = testmessage += alphabet[index];
     }
-    rsa.generateKeys(1024);
+    rsa.generateKeys();
     rsa.EncryptRSA(testmessage);
     rsa.DecryptRSA();
     inputmessage = testmessage;

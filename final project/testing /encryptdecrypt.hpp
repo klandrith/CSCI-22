@@ -1,5 +1,5 @@
 /*  Programmer:     Kyle Landrith
-    Date Competed:  11/29/19
+    Date Competed:  12/2/19
     Resources:      https://brilliant.org/wiki/rsa-encryption/
                     https://simple.wikipedia.org/wiki/RSA_algorithm
                     https://www.shoup.net/ntl/
@@ -20,11 +20,9 @@
 #include <NTL/ZZ.h>
 #include <ctime>
 #include <vector>
-#include <cmath>
 
 using std::string;
 using std::stringstream;
-using std::stoi;
 using std::rand;
 using std::exception;
 using std::vector;
@@ -38,7 +36,7 @@ public:
     srand(time(0));
     // seed RNG
     ZZ seed;
-    seed = rand() % 255;
+    seed = rand() % 999999;
     void SetSeed(const ZZ& seed);
   }
 
@@ -95,14 +93,13 @@ public:
       vector<unsigned char> eblock(this->keyLen);
       // set padding length
       unsigned int psLen = this->keyLen - (1 * mlength) - 3;
-
       // add padding to message
       // eblock = 01 || 02 || random padding || 00 || message
       for (int i = 0; i < stringvalue.size(); i++) {
         eblock[0] = 0x00;
         eblock[1] = 0x02;
         // fill PS
-        for (int j = 2; j < 2 + psLen;) {
+        for (int j = 2; j < 2 + psLen; j++) {
           while(eblock[j] == 0x00) {
             ZZ limit;
             limit = 255;
@@ -111,7 +108,6 @@ public:
             conv(random, ran);
             eblock[j] = random;
           }
-          j++;
         }
       }
       // add index padding block for locating message in decrypted block
@@ -153,8 +149,8 @@ public:
       ZZ tempZZ = ZZFromBytes(ptr, bytelength);
       // encrypt byte converted ZZ and store
       this->encryptedmsg.push_back(PowerMod(tempZZ, e, n));
+      // increment pos counter by four to capture next four characters (or less)
       pos += 4;
-
     }
   }
 
@@ -190,6 +186,7 @@ public:
       for (int j = 0; j < this->keyLen; j++) {
         if (ublock[j] == 0x00) index = j + 1;
       }
+      // extract ascii characters and concatenate onto decrytpedmessage string
       for (int l = index; l < this->keyLen; l++) {
         char msg = ublock[l];
         this->decryptedmessage += msg;
@@ -269,5 +266,5 @@ private:
   unsigned int keyLen;
   double loopcycles;
   vector<ZZ> encryptedmsg;
-  string decryptedmessage = "";
+  string decryptedmessage;
 };
