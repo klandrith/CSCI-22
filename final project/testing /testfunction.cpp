@@ -45,7 +45,7 @@ int main() {
                           'Q', 'R', 'S', 'T', 'U', 'V', 'W',
                           'X', 'Y', 'Z'};
 
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < 100; i++) {
       ZZ randnumber = RandomLen_ZZ(51);
       unsigned int index;
       conv(index, randnumber);

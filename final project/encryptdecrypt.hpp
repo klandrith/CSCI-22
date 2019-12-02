@@ -19,12 +19,14 @@
 #include <sstream>
 #include <NTL/ZZ.h>
 #include <ctime>
+#include <vector>
 
 using std::string;
 using std::stringstream;
 using std::stoi;
 using std::rand;
 using std::exception;
+using std::vector;
 using namespace NTL;
 
 class RSA {
@@ -32,14 +34,18 @@ public:
   // constructor
   RSA() {
     this->encryptedmsg = nullptr;
-    this->decryptedmsg = nullptr;
     this->charDecryptMsg = nullptr;
+    // seed RNG
+    srand(time(0));
+    // seed RNG
+    ZZ seed;
+    seed = rand() % 255;
+    void SetSeed(const ZZ& seed);
   }
 
   // destructor
   ~RSA() {
     delete []encryptedmsg;
-    delete []decryptedmsg;
     delete []charDecryptMsg;
   }
 
@@ -58,11 +64,6 @@ public:
       this->p = GenGermainPrime_ZZ(primelength, error);
       this->q = GenGermainPrime_ZZ(primelength, error);
     }
-    // seed pseudo random number generators
-    srand(time(0));
-    ZZ seed;
-    seed = rand() % 999999;
-    void SetSeed(const ZZ& seed);
     // assign n and phi values
     this->n = this->p * this->q;
     this->phi = (this->p - 1) * (this->q - 1);
@@ -72,102 +73,120 @@ public:
     // test if e and phi are coprime, if not change value of e until they are
     while (true) {
       this->e = RandomLen_ZZ(elength);
-      if (GCD(this->e, this->phi) == 1 && this->e > 65535) break;
+      if (GCD(this->e, this->phi) == 1 && this->e > 1000) break;
     }
     // get value for d (de = 1 mod phi)
     this->d = InvMod(this->e, this->phi);
+    this->keyLen = ((countBits(n) + 7) / 8) - 1;
   }
 
+  // encryption function
   void EncryptRSA(string message) {
     this->msglength = message.size();
     if (this->encryptedmsg != nullptr) {
       delete []encryptedmsg;
-      delete []decryptedmsg;
       delete []charDecryptMsg;
     }
     this->encryptedmsg = new ZZ[this->msglength];
-    this->decryptedmsg = new ZZ[this->msglength];
     this->charDecryptMsg = new char[this->msglength];
     // loop through entire message and encrypt each character
     for (int i = 0; i < this->msglength; i++) {
-      // create instance of stringstream
-      stringstream stream;
-      // seed RNG
-      srand(time(0));
-      ZZ seed;
-      seed = rand() % 555;
-      void SetSeed(const ZZ& seed);
+      // capture ascii value
       unsigned int asciiValue = message.at(i);
-      unsigned int keyLen = (countBits(n) + 7) / 8;
       // add padding to message
       // eblock = 01 || 02 || random padding || 00 || message
-      unsigned int psLen = keyLen - (countBits(asciiValue) / 8) - 3;
-      unsigned char eblock[keyLen];
-      eblock[0] = 0x01;
+      unsigned int psLen = keyLen - 8 - 3;
+      //unsigned char eblock[keyLen];
+      vector<unsigned char> eblock(keyLen);
+      eblock[0] = 0x00;
       eblock[1] = 0x02;
       // fill PS
-      for (int j = 2; j < 2 + keyLen; j++) {
-        ZZ random = RandomLen_ZZ(255);
-        stringstream stream;
-        stream << random;
-        unsigned char ran;
-        stream >> ran;
-        eblock[j] = ran;
-        // clear stream for next round of for loop
-        stream.ignore(stream.str().size());
+      for (int j = 2; j < 2 + psLen;) {
+        while(eblock[j] == 0x00) {
+          ZZ limit;
+          limit = 255;
+          ZZ ran = RandomBnd(limit);
+          unsigned int random;
+          conv(random, ran);
+          eblock[j] = random;
+        }
+        j++;
       }
+      // add index padding block
       eblock[2 + psLen] = 0x00;
       // copy the current ascii character value into last block
-      eblock[3 + psLen] = asciiValue;
-      // loop through and output contents of array into stream
-      for (int j = 0; j <= keyLen; j++) {
-        unsigned int tempint = eblock[j];
-        stream << tempint;
+      eblock[eblock.size() - 1] = asciiValue;
+      // create temporary char array to pass to ZZFromBytes function and
+      // pass in values from eblock vector
+      unsigned char tempblock[eblock.size()];
+      for (int l = 0; l < eblock.size(); l++) {
+        tempblock[l] = eblock.at(l);
       }
-      // dump contents of stream into ZZ object
-      ZZ tempZZ;
-      stream >> tempZZ;
-      // encrypt current msgnum
-      ZZ encrypted = PowerMod(tempZZ, e, n);
-      this->encryptedmsg[i] = encrypted;
-      // clear stream for next round of for loop
-      stream.ignore(stream.str().size());
-      void clear(ZZ& tempZZ);
-    }
-  }
+      unsigned char *ptr;
+      ptr = tempblock;
+      long bytelength = keyLen;
 
-  // encryption function
-  ZZ encrypt(ZZ mnum) {
-    return PowerMod(mnum, this->e, this->n);
+      //testing code
+      /*
+      std::cout << "\n";
+      for (int k = 0; k < eblock.size(); k++) {
+        unsigned int tempint = eblock[k];
+        std::cout << tempint;
+      }
+      std::cout << "\n" << eblock[keyLen] << std::endl;
+      */
+      // testing code
+
+      // convert from byte block (unsigned char array) to ZZ
+      ZZ tempZZ = ZZFromBytes(ptr, bytelength);
+      // encrypt byte converted ZZ and store
+      this->encryptedmsg[i] = PowerMod(tempZZ, e, n);
+    }
   }
 
   // decryption function
   void DecryptRSA() {
     for (int i = 0; i < this->msglength; i++) {
-      decryptedmsg[i] = PowerMod(this->encryptedmsg[i], d, n);
-      stringstream stream;
-      stream << decryptedmsg[i];
-      string tempstring = stream.str();
-      //testing code
-      //std::cout << "\nDecrypted raw:\n" << tempstring << std::endl;
-      if (tempstring.at(0) != '1') {
-        throw std::invalid_argument("FIRST BLOCK OF PADDING DOES NOT MATCH!!!");
+      // decrypt raw ZZ
+      ZZ rawdecrypt = PowerMod(this->encryptedmsg[i], d, n);
+      long bytelength = keyLen;
+      // create char array for decrypted and padded msg
+      unsigned char ublock[keyLen];
+      unsigned char *ptr;
+      ptr = ublock;
+      // convert from raw ZZ back to byte block (unsigned char array)
+      BytesFromZZ(ptr, rawdecrypt, bytelength);
+      // check if msg length is of correct size and that initial padding blocks
+      // are intact
+      if (keyLen != sizeof (ublock)) {
+        throw std::logic_error("ERROR!!! KEY LENGTH DOES NOT EQUAL MSG LENGTH");
       }
-      if (tempstring.at(1) != '2') {
-        throw std::invalid_argument("SECOND BLOCK OF PADDING DOES NOT MATCH!!!");
+      // test first and second block of bytes for correct padding scheme
+      if (ublock[0] != 0x00) {
+        throw std::logic_error("ERROR!!! EXPECTED 0x00 AT FIRST BLOCK!!!");
       }
-      // clear stream for next round of for loop
-      stream.ignore(stream.str().size());
-    }
-    for (int i = 0; i < this->msglength; i++) {
-      stringstream stream;
-      string temp;
-      stream << decryptedmsg[i];
-      stream >> temp;
-      string decryptedMsg = temp.substr(temp.size() - 3, string::npos);
-      charDecryptMsg[i] = stoi(decryptedMsg);
-      // clear stream for next round of for loop
-      stream.ignore(stream.str().size());
+      if (ublock[1] != 0x02) {
+        throw std::logic_error("ERROR!!! EXPECTED 0x02 AT FIRST BLOCK!!!");
+      }
+
+      // testing code
+      /*
+      std::cout << "\n";
+      for (int k = 0; k < keyLen; k++) {
+        unsigned int tempint = ublock[k];
+        std::cout << tempint;
+      }
+      std::cout << "\n" << ublock[keyLen - 1] << std::endl;
+      */
+      // testing code
+
+      // search ublock array for 0x00 padding byte
+      unsigned int index;
+      for (int j = 0; j < keyLen; j++) {
+        if (ublock[j] == 0x00) index = j + 1;
+      }
+      // assign msg at ublock to dynamic char array
+      this->charDecryptMsg[i] = ublock[index];
     }
   }
 
@@ -244,7 +263,7 @@ private:
   // variables needed for encryption/decryption
   ZZ p, q, phi, n, e, d;
   unsigned int msglength;
+  unsigned int keyLen;
   ZZ *encryptedmsg;
-  ZZ *decryptedmsg;
   char *charDecryptMsg;
 };
