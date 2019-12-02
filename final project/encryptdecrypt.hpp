@@ -186,6 +186,7 @@ public:
       for (int j = 0; j < this->keyLen; j++) {
         if (ublock[j] == 0x00) index = j + 1;
       }
+      // extract ascii characters and concatenate onto decrytpedmessage string
       for (int l = index; l < this->keyLen; l++) {
         char msg = ublock[l];
         this->decryptedmessage += msg;
@@ -265,5 +266,5 @@ private:
   unsigned int keyLen;
   double loopcycles;
   vector<ZZ> encryptedmsg;
-  string decryptedmessage = "";
+  string decryptedmessage;
 };
