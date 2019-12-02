@@ -20,7 +20,6 @@
 #include <NTL/ZZ.h>
 #include <ctime>
 #include <vector>
-#include <cmath>
 
 using std::string;
 using std::stringstream;
@@ -38,7 +37,7 @@ public:
     srand(time(0));
     // seed RNG
     ZZ seed;
-    seed = rand() % 255;
+    seed = rand() % 999999;
     void SetSeed(const ZZ& seed);
   }
 
