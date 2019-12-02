@@ -95,9 +95,9 @@ public:
       unsigned int asciiValue = message.at(i);
       // add padding to message
       // eblock = 01 || 02 || random padding || 00 || message
-      unsigned int psLen = keyLen - 8 - 3;
+      unsigned int psLen = this->keyLen - 8 - 3;
       //unsigned char eblock[keyLen];
-      vector<unsigned char> eblock(keyLen);
+      vector<unsigned char> eblock(this->keyLen);
       eblock[0] = 0x00;
       eblock[1] = 0x02;
       // fill PS
@@ -124,7 +124,7 @@ public:
       }
       unsigned char *ptr;
       ptr = tempblock;
-      long bytelength = keyLen;
+      long bytelength = this->keyLen;
 
       //testing code
       /*
@@ -149,16 +149,16 @@ public:
     for (int i = 0; i < this->msglength; i++) {
       // decrypt raw ZZ
       ZZ rawdecrypt = PowerMod(this->encryptedmsg[i], d, n);
-      long bytelength = keyLen;
+      long bytelength = this->keyLen;
       // create char array for decrypted and padded msg
-      unsigned char ublock[keyLen];
+      unsigned char ublock[this->keyLen];
       unsigned char *ptr;
       ptr = ublock;
       // convert from raw ZZ back to byte block (unsigned char array)
       BytesFromZZ(ptr, rawdecrypt, bytelength);
       // check if msg length is of correct size and that initial padding blocks
       // are intact
-      if (keyLen != sizeof (ublock)) {
+      if (this->keyLen != sizeof (ublock)) {
         throw std::logic_error("ERROR!!! KEY LENGTH DOES NOT EQUAL MSG LENGTH");
       }
       // test first and second block of bytes for correct padding scheme
@@ -182,7 +182,7 @@ public:
 
       // search ublock array for 0x00 padding byte
       unsigned int index;
-      for (int j = 0; j < keyLen; j++) {
+      for (int j = 0; j < this->keyLen; j++) {
         if (ublock[j] == 0x00) index = j + 1;
       }
       // assign msg at ublock to dynamic char array
