@@ -1,5 +1,5 @@
 /*  Programmer:     Kyle Landrith
-    Date Competed:  11/29/19
+    Date Competed:  12/2/19
     Resources:      https://brilliant.org/wiki/rsa-encryption/
                     https://simple.wikipedia.org/wiki/RSA_algorithm
                     https://www.shoup.net/ntl/
