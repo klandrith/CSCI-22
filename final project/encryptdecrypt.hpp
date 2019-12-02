@@ -26,6 +26,7 @@ using std::stringstream;
 using std::rand;
 using std::exception;
 using std::vector;
+using std::hex;
 using namespace NTL;
 
 class RSA {
@@ -198,7 +199,9 @@ public:
   string getEncrypted() {
     stringstream stream;
     for (int i = 0; i < this->encryptedmsg.size(); i++) {
-      stream << this->encryptedmsg[i];
+      unsigned int temp;
+      conv(temp, this->encryptedmsg[i]);
+      stream << hex << temp;
     }
     return stream.str();
   }
