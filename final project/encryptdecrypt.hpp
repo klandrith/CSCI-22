@@ -93,14 +93,13 @@ public:
       vector<unsigned char> eblock(this->keyLen);
       // set padding length
       unsigned int psLen = this->keyLen - (1 * mlength) - 3;
-
       // add padding to message
       // eblock = 01 || 02 || random padding || 00 || message
       for (int i = 0; i < stringvalue.size(); i++) {
         eblock[0] = 0x00;
         eblock[1] = 0x02;
         // fill PS
-        for (int j = 2; j < 2 + psLen;) {
+        for (int j = 2; j < 2 + psLen; j++) {
           while(eblock[j] == 0x00) {
             ZZ limit;
             limit = 255;
@@ -109,7 +108,6 @@ public:
             conv(random, ran);
             eblock[j] = random;
           }
-          j++;
         }
       }
       // add index padding block for locating message in decrypted block
@@ -151,8 +149,8 @@ public:
       ZZ tempZZ = ZZFromBytes(ptr, bytelength);
       // encrypt byte converted ZZ and store
       this->encryptedmsg.push_back(PowerMod(tempZZ, e, n));
+      // increment pos counter by four to capture next four characters (or less)
       pos += 4;
-
     }
   }
 
