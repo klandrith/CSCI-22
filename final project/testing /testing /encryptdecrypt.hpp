@@ -20,7 +20,6 @@
 #include <NTL/ZZ.h>
 #include <ctime>
 #include <vector>
-#include <cmath>
 
 using std::string;
 using std::stringstream;
@@ -47,11 +46,11 @@ public:
   }
 
   // key generation function
-  void generateKeys() {
+  void generateKeys(int keylength) {
     // set bit length for prime numbers and error rate 2^(-error)
     // error rate is upper limit that generated numbers are not actually prime
     long primelength;
-    primelength = 1024;
+    primelength = keylength;
     long error;
     error = 80;
     this->p = 1;
@@ -79,26 +78,26 @@ public:
 
   // encryption function
   void EncryptRSA(string message) {
-    // set msglength and clear the vector if it was previously filled
     this->msglength = message.size();
     if (this->encryptedmsg.size() != 0) {
       this->encryptedmsg.clear();
     }
     this->loopcycles = ceil(this->msglength / 4);
-    // loop through entire message and encrypt every one to four characters max
+    decryptedmessage = "";
+    // loop through entire message and encrypt every four characters max
     unsigned int pos = 0;
+    unsigned int charlength;
+    string tempmsg = message;
     string stringvalue;
-    for (int a = 0; a < this->loopcycles; a++) {
-      stringvalue = message.substr(pos, 4);
-      unsigned int mlength = message.size();
-      // create vectpr fpr storing blocks
-      vector<unsigned char> eblock(this->keyLen);
-      // set padding length
-      unsigned int psLen = this->keyLen - (1 * mlength) - 3;
-
-      // add padding to message
-      // eblock = 01 || 02 || random padding || 00 || message
-      for (int i = 0; i < stringvalue.size(); i++) {
+    for (int a = 0; a < loopcycles; a++) {
+      if (tempmsg.size() >= 4) stringvalue = message.substr(pos, 4);
+      else stringvalue = message.substr(pos);
+      for (int i = 0; i < this->msglength; i++) {
+        // add padding to message
+        // eblock = 01 || 02 || random padding || 00 || message
+        unsigned int psLen = this->keyLen - 8 - 3;
+        //unsigned char eblock[keyLen];
+        vector<unsigned char> eblock(this->keyLen);
         eblock[0] = 0x00;
         eblock[1] = 0x02;
         // fill PS
@@ -113,51 +112,60 @@ public:
           }
           j++;
         }
+        // add index padding block for locating message in decrypted block
+        eblock[2 + psLen] = 0x00;
+        // insert ascii values
+        if (stringvalue.size() == 4) {
+          eblock[eblock.size() - 4] = stringvalue.at(0);
+          eblock[eblock.size() - 3] = stringvalue.at(1);
+          eblock[eblock.size() - 2] = stringvalue.at(2);
+          eblock[eblock.size() - 1] = stringvalue.at(3);
+        }
+        else if (stringvalue.size() == 3) {
+          eblock[eblock.size() - 3] = stringvalue.at(1);
+          eblock[eblock.size() - 2] = stringvalue.at(2);
+          eblock[eblock.size() - 1] = stringvalue.at(3);
+        }
+        else if (stringvalue.size() == 2) {
+          eblock[eblock.size() - 2] = stringvalue.at(2);
+          eblock[eblock.size() - 1] = stringvalue.at(3);
+        }
+        else if (stringvalue.size() == 1) {
+          eblock[eblock.size() - 1] = stringvalue.at(3);
+        }
+        // shouldn't happen
+        else break;
+        // create temporary char array to pass to ZZFromBytes function and
+        // pass in values from eblock vector
+        unsigned char tempblock[eblock.size()];
+        for (int l = 0; l < eblock.size(); l++) {
+          tempblock[l] = eblock.at(l);
+        }
+        unsigned char *ptr;
+        ptr = tempblock;
+        long bytelength = this->keyLen;
+
+        //testing code
+        /*
+        std::cout << "\n";
+        for (int k = 0; k < eblock.size(); k++) {
+          unsigned int tempint = eblock[k];
+          std::cout << tempint;
+        }
+        std::cout << "\n" << eblock[keyLen] << std::endl;
+        */
+        // testing code
+
+        // convert from byte block (unsigned char array) to ZZ
+        ZZ tempZZ = ZZFromBytes(ptr, bytelength);
+        // encrypt byte converted ZZ and store
+        this->encryptedmsg.push_back(PowerMod(tempZZ, e, n));
       }
-      // add index padding block for locating message in decrypted block
-      eblock[2 + psLen] = 0x00;
-      // insert ascii values depending on how many characters in substring
-      if (stringvalue.size() == 4) {
-        eblock[eblock.size() - 4] = stringvalue.at(0);
-        eblock[eblock.size() - 3] = stringvalue.at(1);
-        eblock[eblock.size() - 2] = stringvalue.at(2);
-        eblock[eblock.size() - 1] = stringvalue.at(3);
-      }
-      else if (stringvalue.size() == 3) {
-        eblock[eblock.size() - 3] = stringvalue.at(0);
-        eblock[eblock.size() - 2] = stringvalue.at(1);
-        eblock[eblock.size() - 1] = stringvalue.at(2);
-      }
-      else if (stringvalue.size() == 2) {
-        eblock[eblock.size() - 2] = stringvalue.at(0);
-        eblock[eblock.size() - 1] = stringvalue.at(1);
-      }
-      else if (stringvalue.size() == 1) {
-        eblock[eblock.size() - 1] = stringvalue.at(0);
-      }
-      // shouldn't happen
-      else {
-        throw std::logic_error("ERROR!!! SHOULD NOT RUN ON EMPTY STRING!!!");
-        break;
-      }
-      // create temporary char array to pass to ZZFromBytes function and
-      // pass in values from eblock vector
-      unsigned char tempblock[eblock.size()];
-      for (int l = 0; l < eblock.size(); l++) {
-        tempblock[l] = eblock.at(l);
-      }
-      unsigned char *ptr;
-      ptr = tempblock;
-      long bytelength = this->keyLen;
-      // convert from byte block (unsigned char array) to ZZ
-      ZZ tempZZ = ZZFromBytes(ptr, bytelength);
-      // encrypt byte converted ZZ and store
-      this->encryptedmsg.push_back(PowerMod(tempZZ, e, n));
-      pos += 4;
+
+
 
     }
   }
-
 
   // decryption function
   void DecryptRSA() {
@@ -183,16 +191,21 @@ public:
         throw std::logic_error("ERROR!!! EXPECTED 0x00 AT FIRST BLOCK!!!");
       }
       if (ublock[1] != 0x02) {
-        throw std::logic_error("ERROR!!! EXPECTED 0x02 AT SECOND BLOCK!!!");
+        throw std::logic_error("ERROR!!! EXPECTED 0x02 AT FIRST BLOCK!!!");
       }
       // search ublock array for 0x00 padding byte
       unsigned int index;
       for (int j = 0; j < this->keyLen; j++) {
         if (ublock[j] == 0x00) index = j + 1;
       }
-      for (int l = index; l < this->keyLen; l++) {
-        char msg = ublock[l];
-        this->decryptedmessage += msg;
+      // create temp vector to pass in characters via for loop
+      vector<unsigned char> temp(this->keyLen - index);
+      for (int j = 0; j < temp.size(); j++) {
+        temp[j] = ublock[j + index];
+      }
+      // extract characters from vector and append to decryptedmessage string
+      for (int k = 0; k < temp.size(); k++) {
+        this->decryptedmessage += temp[k];
       }
     }
   }
@@ -265,9 +278,9 @@ public:
 private:
   // variables needed for encryption/decryption
   ZZ p, q, phi, n, e, d;
-  double msglength;
+  unsigned int msglength;
   unsigned int keyLen;
-  double loopcycles;
+  unsigned int loopcycles;
   vector<ZZ> encryptedmsg;
   string decryptedmessage = "";
 };

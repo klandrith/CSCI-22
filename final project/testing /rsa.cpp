@@ -5,6 +5,7 @@
                     https://www.shoup.net/ntl/
                     https://www.geeksforgeeks.org/measure-execution-time-function-cpp/
                     https://www.includehelp.com/cpp-programs/find-total-number-of-bits-required-to-represent-a-number-in-binary.aspx
+                    https://eli.thegreenplace.net/2019/rsa-theory-and-implementation/
     Description:    A simple program to perform RSA encryption on a string message
                     entered through console input (ASCII characters only).
                     Generates random keys each time the program is ran.
@@ -21,8 +22,8 @@
 #include "CinReader.h"
 #include "encryptdecrypt.hpp"
 
-using std::cin;
 using std::cout;
+using std::endl;
 using std::string;
 using std::getline;
 using namespace std::chrono;
@@ -31,29 +32,28 @@ void ClearScreen();
 void EnterContinue(string message);
 
 int main() {
+  // create instance of cinreader for input as wekk as isntance of RSA class
   int selection = 0;
   string message;
   CinReader reader;
   RSA rsa;
 
+  // menu loop
   do {
     ClearScreen();
-    cout << "***************************************************************\n"
-         << "*                                                             *\n"
-         << "*       ~~~\"Textbook\" RSA Algorithm Implementation~~~         *\n"
-         << "*                                                             *\n"
-         << "*                          Author: Kyle Landrith              *\n"
-         << "*                                                             *\n"
-         << "***************************************************************\n";
+    cout << "****************************************************************\n"
+         << "*                                                              *\n"
+         << "*              ~~~RSA Algorithm Implementation~~~              *\n"
+         << "*                                                              *\n"
+         << "*                          Author: Kyle Landrith               *\n"
+         << "*                                                              *\n"
+         << "****************************************************************\n";
 
     cout << "\n\n\nEnter the message to encrypt and press enter:\n";
     getline(cin, message);
-    cout << "\nEnter the desired prime number bit length (256 min, 1024 max; keys will be 2 * length entered): ";
-    int keylength;
-    keylength = reader.readInt(256, 1024);
     EnterContinue("\nPress enter to generate keys...");
     auto startKey = high_resolution_clock::now();
-    rsa.generateKeys(keylength);
+    rsa.generateKeys();
     auto stopKey = high_resolution_clock::now();
     auto durationKey = duration_cast<microseconds>(stopKey - startKey);
 
@@ -62,7 +62,7 @@ int main() {
     cout << "\n\nq: " << rsa.getQ() <<"\n"
          << "\nA random odd integer that is coprime to (p - 1) * (q - 1)\n"
          << "has been selected for the value of e (e = " << rsa.getE() << ").\n"
-         << "\nKey length is " << rsa.countBits() << " bits.\n";
+         << "\nKey length is " << rsa.keyLength() << " bits.\n";
     cout << "\nKeys took " << durationKey.count() << "ms to generate...\n";
     EnterContinue("Press enter to display the public key...");
     cout << "\nPublic key is: \n\nn: " << rsa.getN() << "\n\ne: " << rsa.getE()
@@ -72,7 +72,7 @@ int main() {
 
     EnterContinue("Press enter to begin encryption...");
     auto startEncrypt = high_resolution_clock::now();
-    rsa.encrypt(message);
+    rsa.EncryptRSA(message);
     auto stopEncrypt = high_resolution_clock::now();
     auto durationEncrypt = duration_cast<microseconds>(stopEncrypt - startEncrypt);
     cout << "\nMessage took " << durationEncrypt.count() << "ms to encrypt...\n";
@@ -82,7 +82,7 @@ int main() {
     EnterContinue("Press enter to begin decryption...");
 
     auto startDecrypt = high_resolution_clock::now();
-    rsa.decrypt();
+    rsa.DecryptRSA();
     auto stopDecrypt = high_resolution_clock::now();
     auto durationDecrypt = duration_cast<microseconds>(stopDecrypt - startDecrypt);
 

@@ -20,6 +20,7 @@
 #include <NTL/ZZ.h>
 #include <ctime>
 #include <vector>
+#include <cmath>
 
 using std::string;
 using std::stringstream;
@@ -33,8 +34,6 @@ class RSA {
 public:
   // constructor
   RSA() {
-    this->encryptedmsg = nullptr;
-    this->charDecryptMsg = nullptr;
     // seed RNG
     srand(time(0));
     // seed RNG
@@ -45,16 +44,14 @@ public:
 
   // destructor
   ~RSA() {
-    delete []encryptedmsg;
-    delete []charDecryptMsg;
   }
 
   // key generation function
-  void generateKeys(int keylength) {
+  void generateKeys() {
     // set bit length for prime numbers and error rate 2^(-error)
     // error rate is upper limit that generated numbers are not actually prime
     long primelength;
-    primelength = keylength;
+    primelength = 1024;
     long error;
     error = 80;
     this->p = 1;
@@ -82,40 +79,67 @@ public:
 
   // encryption function
   void EncryptRSA(string message) {
+    // set msglength and clear the vector if it was previously filled
     this->msglength = message.size();
-    if (this->encryptedmsg != nullptr) {
-      delete []encryptedmsg;
-      delete []charDecryptMsg;
+    if (this->encryptedmsg.size() != 0) {
+      this->encryptedmsg.clear();
     }
-    this->encryptedmsg = new ZZ[this->msglength];
-    this->charDecryptMsg = new char[this->msglength];
-    // loop through entire message and encrypt each character
-    for (int i = 0; i < this->msglength; i++) {
-      // capture ascii value
-      unsigned int asciiValue = message.at(i);
+    this->loopcycles = ceil(this->msglength / 4);
+    // loop through entire message and encrypt every one to four characters max
+    unsigned int pos = 0;
+    string stringvalue;
+    for (int a = 0; a < this->loopcycles; a++) {
+      stringvalue = message.substr(pos, 4);
+      unsigned int mlength = message.size();
+      // create vectpr fpr storing blocks
+      vector<unsigned char> eblock(this->keyLen);
+      // set padding length
+      unsigned int psLen = this->keyLen - (1 * mlength) - 3;
+
       // add padding to message
       // eblock = 01 || 02 || random padding || 00 || message
-      unsigned int psLen = this->keyLen - 8 - 3;
-      //unsigned char eblock[keyLen];
-      vector<unsigned char> eblock(this->keyLen);
-      eblock[0] = 0x00;
-      eblock[1] = 0x02;
-      // fill PS
-      for (int j = 2; j < 2 + psLen;) {
-        while(eblock[j] == 0x00) {
-          ZZ limit;
-          limit = 255;
-          ZZ ran = RandomBnd(limit);
-          unsigned int random;
-          conv(random, ran);
-          eblock[j] = random;
+      for (int i = 0; i < stringvalue.size(); i++) {
+        eblock[0] = 0x00;
+        eblock[1] = 0x02;
+        // fill PS
+        for (int j = 2; j < 2 + psLen;) {
+          while(eblock[j] == 0x00) {
+            ZZ limit;
+            limit = 255;
+            ZZ ran = RandomBnd(limit);
+            unsigned int random;
+            conv(random, ran);
+            eblock[j] = random;
+          }
+          j++;
         }
-        j++;
       }
-      // add index padding block
+      // add index padding block for locating message in decrypted block
       eblock[2 + psLen] = 0x00;
-      // copy the current ascii character value into last block
-      eblock[eblock.size() - 1] = asciiValue;
+      // insert ascii values depending on how many characters in substring
+      if (stringvalue.size() == 4) {
+        eblock[eblock.size() - 4] = stringvalue.at(0);
+        eblock[eblock.size() - 3] = stringvalue.at(1);
+        eblock[eblock.size() - 2] = stringvalue.at(2);
+        eblock[eblock.size() - 1] = stringvalue.at(3);
+      }
+      else if (stringvalue.size() == 3) {
+        eblock[eblock.size() - 3] = stringvalue.at(0);
+        eblock[eblock.size() - 2] = stringvalue.at(1);
+        eblock[eblock.size() - 1] = stringvalue.at(2);
+      }
+      else if (stringvalue.size() == 2) {
+        eblock[eblock.size() - 2] = stringvalue.at(0);
+        eblock[eblock.size() - 1] = stringvalue.at(1);
+      }
+      else if (stringvalue.size() == 1) {
+        eblock[eblock.size() - 1] = stringvalue.at(0);
+      }
+      // shouldn't happen
+      else {
+        throw std::logic_error("ERROR!!! SHOULD NOT RUN ON EMPTY STRING!!!");
+        break;
+      }
       // create temporary char array to pass to ZZFromBytes function and
       // pass in values from eblock vector
       unsigned char tempblock[eblock.size()];
@@ -125,28 +149,21 @@ public:
       unsigned char *ptr;
       ptr = tempblock;
       long bytelength = this->keyLen;
-
-      //testing code
-      /*
-      std::cout << "\n";
-      for (int k = 0; k < eblock.size(); k++) {
-        unsigned int tempint = eblock[k];
-        std::cout << tempint;
-      }
-      std::cout << "\n" << eblock[keyLen] << std::endl;
-      */
-      // testing code
-
       // convert from byte block (unsigned char array) to ZZ
       ZZ tempZZ = ZZFromBytes(ptr, bytelength);
       // encrypt byte converted ZZ and store
-      this->encryptedmsg[i] = PowerMod(tempZZ, e, n);
+      this->encryptedmsg.push_back(PowerMod(tempZZ, e, n));
+      pos += 4;
+
     }
   }
 
+
   // decryption function
   void DecryptRSA() {
-    for (int i = 0; i < this->msglength; i++) {
+    // clear decrypted message string
+    this->decryptedmessage = "";
+    for (int i = 0; i < this->loopcycles; i++) {
       // decrypt raw ZZ
       ZZ rawdecrypt = PowerMod(this->encryptedmsg[i], d, n);
       long bytelength = this->keyLen;
@@ -166,34 +183,24 @@ public:
         throw std::logic_error("ERROR!!! EXPECTED 0x00 AT FIRST BLOCK!!!");
       }
       if (ublock[1] != 0x02) {
-        throw std::logic_error("ERROR!!! EXPECTED 0x02 AT FIRST BLOCK!!!");
+        throw std::logic_error("ERROR!!! EXPECTED 0x02 AT SECOND BLOCK!!!");
       }
-
-      // testing code
-      /*
-      std::cout << "\n";
-      for (int k = 0; k < keyLen; k++) {
-        unsigned int tempint = ublock[k];
-        std::cout << tempint;
-      }
-      std::cout << "\n" << ublock[keyLen - 1] << std::endl;
-      */
-      // testing code
-
       // search ublock array for 0x00 padding byte
       unsigned int index;
       for (int j = 0; j < this->keyLen; j++) {
         if (ublock[j] == 0x00) index = j + 1;
       }
-      // assign msg at ublock to dynamic char array
-      this->charDecryptMsg[i] = ublock[index];
+      for (int l = index; l < this->keyLen; l++) {
+        char msg = ublock[l];
+        this->decryptedmessage += msg;
+      }
     }
   }
 
   // function to return a string representing encrytped message
   string getEncrypted() {
     stringstream stream;
-    for (int i = 0; i < this->msglength; i++) {
+    for (int i = 0; i < this->encryptedmsg.size(); i++) {
       stream << this->encryptedmsg[i];
     }
     return stream.str();
@@ -201,11 +208,7 @@ public:
 
   // function to return a string representing decrypted message
   string getDecrypted() {
-    stringstream stream;
-    for (int i = 0; i < this->msglength; i++) {
-      stream << this->charDecryptMsg[i];
-    }
-    return stream.str();
+    return this->decryptedmessage;
   }
 
   // functions to return a string version of variables and keys
@@ -262,8 +265,9 @@ public:
 private:
   // variables needed for encryption/decryption
   ZZ p, q, phi, n, e, d;
-  unsigned int msglength;
+  double msglength;
   unsigned int keyLen;
-  ZZ *encryptedmsg;
-  char *charDecryptMsg;
+  double loopcycles;
+  vector<ZZ> encryptedmsg;
+  string decryptedmessage = "";
 };

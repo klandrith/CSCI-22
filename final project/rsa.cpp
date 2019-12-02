@@ -51,12 +51,9 @@ int main() {
 
     cout << "\n\n\nEnter the message to encrypt and press enter:\n";
     getline(cin, message);
-    cout << "\nEnter the desired prime number bit length (256 min, 1024 max; keys will be 2 * length entered): ";
-    int keylength;
-    keylength = reader.readInt(256, 1024);
     EnterContinue("\nPress enter to generate keys...");
     auto startKey = high_resolution_clock::now();
-    rsa.generateKeys(keylength);
+    rsa.generateKeys();
     auto stopKey = high_resolution_clock::now();
     auto durationKey = duration_cast<microseconds>(stopKey - startKey);
 
