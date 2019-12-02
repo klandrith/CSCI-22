@@ -58,6 +58,7 @@ int main() {
 
     if (testmessage != outputmessage) break;
     cout << testmessage << endl;
+    cout << outputmessage << endl;
     cout << "Continuing testing values for encryption..." << endl;
   }
   cout << "ERROR! ENCRYPTION/DECRYPTION FAILED!!!" << endl;

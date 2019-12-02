@@ -26,6 +26,7 @@ using std::stringstream;
 using std::rand;
 using std::exception;
 using std::vector;
+using std::hex;
 using namespace NTL;
 
 class RSA {
@@ -46,33 +47,35 @@ public:
 
   // key generation function
   void generateKeys() {
-    // set bit length for prime numbers and error rate 2^(-error)
-    // error rate is upper limit that generated numbers are not actually prime
-    long primelength;
-    primelength = 1024;
-    long error;
-    error = 80;
-    this->p = 1;
-    this->q = 1;
-    // generate 1024 bit primes that are different
-    while (p == q) {
-      this->p = GenGermainPrime_ZZ(primelength, error);
-      this->q = GenGermainPrime_ZZ(primelength, error);
+    while(keyLength() != 2048) {
+      // set bit length for prime numbers and error rate 2^(-error)
+      // error rate is upper limit that generated numbers are not actually prime
+      long primelength;
+      primelength = 1024;
+      long error;
+      error = 80;
+      this->p = 1;
+      this->q = 1;
+      // generate 1024 bit primes that are different
+      while (p == q) {
+        this->p = GenGermainPrime_ZZ(primelength, error);
+        this->q = GenGermainPrime_ZZ(primelength, error);
+      }
+      // assign n and phi values
+      this->n = this->p * this->q;
+      this->phi = (this->p - 1) * (this->q - 1);
+      // set bit length for e generation
+      long elength;
+      elength = 64;
+      // test if e and phi are coprime, if not change value of e until they are
+      while (true) {
+        this->e = RandomLen_ZZ(elength);
+        if (GCD(this->e, this->phi) == 1 && this->e > 1000) break;
+      }
+      // get value for d (de = 1 mod phi)
+      this->d = InvMod(this->e, this->phi);
+      this->keyLen = ((countBits(n) + 7) / 8) - 1;
     }
-    // assign n and phi values
-    this->n = this->p * this->q;
-    this->phi = (this->p - 1) * (this->q - 1);
-    // set bit length for e generation
-    long elength;
-    elength = 64;
-    // test if e and phi are coprime, if not change value of e until they are
-    while (true) {
-      this->e = RandomLen_ZZ(elength);
-      if (GCD(this->e, this->phi) == 1 && this->e > 1000) break;
-    }
-    // get value for d (de = 1 mod phi)
-    this->d = InvMod(this->e, this->phi);
-    this->keyLen = ((countBits(n) + 7) / 8) - 1;
   }
 
   // encryption function
@@ -198,7 +201,9 @@ public:
   string getEncrypted() {
     stringstream stream;
     for (int i = 0; i < this->encryptedmsg.size(); i++) {
-      stream << this->encryptedmsg[i];
+      unsigned int temp;
+      conv(temp, this->encryptedmsg[i]);
+      stream << hex << temp;
     }
     return stream.str();
   }
@@ -263,7 +268,7 @@ private:
   // variables needed for encryption/decryption
   ZZ p, q, phi, n, e, d;
   double msglength;
-  unsigned int keyLen;
+  unsigned int keyLen = 0;
   double loopcycles;
   vector<ZZ> encryptedmsg;
   string decryptedmessage;
