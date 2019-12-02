@@ -23,7 +23,6 @@
 
 using std::string;
 using std::stringstream;
-using std::stoi;
 using std::rand;
 using std::exception;
 using std::vector;
