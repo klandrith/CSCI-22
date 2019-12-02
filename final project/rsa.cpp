@@ -55,7 +55,7 @@ int main() {
     auto startKey = high_resolution_clock::now();
     rsa.generateKeys();
     auto stopKey = high_resolution_clock::now();
-    auto durationKey = duration_cast<microseconds>(stopKey - startKey);
+    auto durationKey = duration_cast<milliseconds>(stopKey - startKey);
 
     cout << "\nRandom prime numbers have been selected for use in\n"
          << "generating the public and private keys. \n\np: " << rsa.getP();
@@ -74,7 +74,7 @@ int main() {
     auto startEncrypt = high_resolution_clock::now();
     rsa.EncryptRSA(message);
     auto stopEncrypt = high_resolution_clock::now();
-    auto durationEncrypt = duration_cast<microseconds>(stopEncrypt - startEncrypt);
+    auto durationEncrypt = duration_cast<milliseconds>(stopEncrypt - startEncrypt);
     cout << "\nMessage took " << durationEncrypt.count() << "ms to encrypt...\n";
 
     EnterContinue("Press enter to display encrypted message...");
@@ -84,7 +84,7 @@ int main() {
     auto startDecrypt = high_resolution_clock::now();
     rsa.DecryptRSA();
     auto stopDecrypt = high_resolution_clock::now();
-    auto durationDecrypt = duration_cast<microseconds>(stopDecrypt - startDecrypt);
+    auto durationDecrypt = duration_cast<milliseconds>(stopDecrypt - startDecrypt);
 
     cout << "Message took " << durationDecrypt.count() << "ms to decrypt...\n";
     EnterContinue("Press enter to display decrypted message...");
