@@ -50,6 +50,7 @@ int main() {
       testmessage = testmessage += alphabet[index];
     }
     rsa.generateKeys();
+    cout << rsa.getN() << endl;
     rsa.EncryptRSA(testmessage);
     rsa.DecryptRSA();
     outputmessage = rsa.getDecrypted();

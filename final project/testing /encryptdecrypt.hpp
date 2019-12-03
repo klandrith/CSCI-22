@@ -47,6 +47,10 @@ public:
 
   // key generation function
   void generateKeys() {
+    this->p = 1;
+    this->q = 1;
+    this->n = 1;
+    this->phi = 1;
     while(keyLength() != 2048) {
       // set bit length for prime numbers and error rate 2^(-error)
       // error rate is upper limit that generated numbers are not actually prime
