@@ -60,8 +60,8 @@ int main() {
     cout << "\nRandom prime numbers have been selected for use in\n"
          << "generating the public and private keys. \n\np: " << rsa.getP();
     cout << "\n\nq: " << rsa.getQ() <<"\n"
-         << "\nA random odd integer that is coprime to (p - 1) * (q - 1)\n"
-         << "has been selected for the value of e (e = " << rsa.getE() << ").\n"
+         << "\nThe value of 65537 has been selected for e. Primes have been\n"
+         << "calculated such that GCD(e, (p - 1) * (q - 1)) == 1.\n"
          << "\nKey length is " << rsa.keyLength() << " bits.\n";
     cout << "\nKeys took " << durationKey.count() << "ms to generate...\n";
     EnterContinue("Press enter to display the public key...");
