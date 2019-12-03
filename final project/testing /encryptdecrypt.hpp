@@ -54,24 +54,20 @@ public:
       primelength = 1024;
       long error;
       error = 80;
-      this->p = 1;
-      this->q = 1;
+      this->e = 65537;
       // generate 1024 bit primes that are different
-      while (p == q) {
+      while (true) {
+        // generate random primes
         this->p = GenGermainPrime_ZZ(primelength, error);
         this->q = GenGermainPrime_ZZ(primelength, error);
+        // assign n and phi values
+        this->n = this->p * this->q;
+        this->phi = (this->p - 1) * (this->q - 1);
+        // check for proper GCD value between e and phi, and that primes are not
+        // the same
+        if (GCD(this->e, this->phi) == 1 && this->p != this->q) break;
       }
-      // assign n and phi values
-      this->n = this->p * this->q;
-      this->phi = (this->p - 1) * (this->q - 1);
-      // set bit length for e generation
-      long elength;
-      elength = 64;
-      // test if e and phi are coprime, if not change value of e until they are
-      while (true) {
-        this->e = RandomLen_ZZ(elength);
-        if (GCD(this->e, this->phi) == 1 && this->e > 1000) break;
-      }
+
       // get value for d (de = 1 mod phi)
       this->d = InvMod(this->e, this->phi);
       this->keyLen = ((countBits(n) + 7) / 8) - 1;

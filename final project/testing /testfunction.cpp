@@ -30,12 +30,11 @@ using namespace std::chrono;
 
 int main() {
   RSA rsa;
-  string testmessage;
+  string testmessage, inputmessage, outputmessage;
   // seed pseudo random number generators
   srand(time(0));
   while (true) {
-    string inputmessage, outputmessage;
-    testmessage = "";
+    testmessage = "", outputmessage = "";
     char alphabet[52] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g',
                           'h', 'i', 'j', 'k', 'l', 'm', 'n',
                           'o', 'p', 'q', 'r', 's', 't', 'u',
@@ -53,7 +52,6 @@ int main() {
     rsa.generateKeys();
     rsa.EncryptRSA(testmessage);
     rsa.DecryptRSA();
-    inputmessage = testmessage;
     outputmessage = rsa.getDecrypted();
 
     if (testmessage != outputmessage) break;
