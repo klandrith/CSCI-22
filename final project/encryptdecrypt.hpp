@@ -113,6 +113,8 @@ public:
     }
   }
 
+  // function to encode the message and padding into a block of data prior to
+  // encryption being performed
   void EncodeBlock(vector<unsigned char> &eblock, string stringvalue) {
     unsigned int mlength = stringvalue.size();
     unsigned int counter = stringvalue.size();
@@ -159,6 +161,7 @@ public:
     }
   }
 
+  // function to decode and extract message from an unecrypted block of data
   void DecodeBlock(unsigned char *ublock, unsigned int size) {
     // check if msg length is of correct size and that initial padding blocks
     // are intact
