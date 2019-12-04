@@ -1,5 +1,5 @@
 /*  Programmer:     Kyle Landrith
-    Date Competed:  12/2/19
+    Date Competed:  12/4/19
     Resources:      https://brilliant.org/wiki/rsa-encryption/
                     https://simple.wikipedia.org/wiki/RSA_algorithm
                     https://www.shoup.net/ntl/
@@ -57,7 +57,7 @@ int main() {
     auto startKey = high_resolution_clock::now();
     rsa.generateKeys();
     auto stopKey = high_resolution_clock::now();
-    auto durationKey = duration_cast<milliseconds>(stopKey - startKey);
+    auto durationKey = duration_cast<microseconds>(stopKey - startKey);
 
     cout << "\nRandom prime numbers have been selected for use in\n"
          << "generating the public and private keys. \n\np: " << rsa.getP();
@@ -65,7 +65,7 @@ int main() {
          << "\nThe value of 65537 has been selected for e. Primes have been\n"
          << "calculated such that GCD(e, (p - 1) * (q - 1)) == 1.\n"
          << "\nKey length is " << rsa.keyLength() << " bits.\n";
-    cout << "\nKeys took " << durationKey.count() << "ms to generate...\n";
+    cout << "\nKeys took " << durationKey.count() << " microseconds to generate...\n";
     EnterContinue("Press enter to display the public key...");
     cout << "\nPublic key is: \n\nn: " << rsa.getN() << "\n\ne: " << rsa.getE()
          << "\n";
@@ -76,8 +76,8 @@ int main() {
     auto startEncrypt = high_resolution_clock::now();
     rsa.EncryptRSA(message);
     auto stopEncrypt = high_resolution_clock::now();
-    auto durationEncrypt = duration_cast<milliseconds>(stopEncrypt - startEncrypt);
-    cout << "\nMessage took " << durationEncrypt.count() << "ms to encrypt...\n";
+    auto durationEncrypt = duration_cast<microseconds>(stopEncrypt - startEncrypt);
+    cout << "\nMessage took " << durationEncrypt.count() << " microseconds to encrypt...\n";
 
     EnterContinue("Press enter to display encrypted message...");
     cout << "\nEncrypted messaged is:\n" << rsa.getEncrypted() << endl;
@@ -86,9 +86,9 @@ int main() {
     auto startDecrypt = high_resolution_clock::now();
     rsa.DecryptRSA();
     auto stopDecrypt = high_resolution_clock::now();
-    auto durationDecrypt = duration_cast<milliseconds>(stopDecrypt - startDecrypt);
+    auto durationDecrypt = duration_cast<microseconds>(stopDecrypt - startDecrypt);
 
-    cout << "Message took " << durationDecrypt.count() << "ms to decrypt...\n";
+    cout << "Message took " << durationDecrypt.count() << " microseconds to decrypt...\n";
     EnterContinue("Press enter to display decrypted message...");
     cout << "\nDecrypted message is: \n" << rsa.getDecrypted() << endl
          << "\n\nEnter 0 to exit, 1 to encrypt another message: ";
