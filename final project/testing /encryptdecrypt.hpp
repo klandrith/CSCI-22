@@ -92,28 +92,9 @@ public:
     ZZ tempZZ;
     for (int a = 0; a < this->loopcycles; a++) {
       stringvalue = message.substr(pos, 64);
-      unsigned int mlength = stringvalue.size();
       // create vectpr for storing blocks
       vector<unsigned char> eblock(this->keyLen);
-      // set padding length
-      unsigned int psLen = (keyLength() / 8) - (1 * mlength) - 3;
-      // add padding to message
-      // eblock = 01 || 02 || random padding || 00 || message
-      eblock[0] = 0x00;
-      eblock[1] = 0x02;
-      ZZ ran;
-      long limit = 255;
-      unsigned int psTemp;
-      // fill PS with random numbers
-      for (int j = 2; j < psLen; j++) {
-        ran = RandomLen_ZZ(limit);
-        conv(psTemp, ran);
-        eblock[j] = psTemp;
-      }
-      // add index padding block for locating message in decrypted block
-      eblock[2 + psLen] = 0x00;
-      // insert ascii values depending on how many characters in substring
-      AddMsgToBlock(eblock, stringvalue);
+      EncodeBlock(eblock, stringvalue);
       // create temporary char array to pass to ZZFromBytes function and
       // pass in values from eblock vector
       unsigned char tempblock[eblock.size()];
@@ -132,8 +113,27 @@ public:
     }
   }
 
-  void AddMsgToBlock(vector<unsigned char> &eblock, string stringvalue) {
+  void EncodeBlock(vector<unsigned char> &eblock, string stringvalue) {
+    unsigned int mlength = stringvalue.size();
     unsigned int counter = stringvalue.size();
+    // set padding length
+    unsigned int psLen = (keyLength() / 8) - (1 * mlength) - 3;
+    // add padding to message
+    // eblock = 01 || 02 || random padding || 00 || message
+    eblock[0] = 0x00;
+    eblock[1] = 0x02;
+    ZZ ran;
+    long limit = 255;
+    unsigned int psTemp;
+    // fill PS with random numbers
+    for (int j = 2; j < psLen; j++) {
+      ran = RandomLen_ZZ(limit);
+      conv(psTemp, ran);
+      eblock[j] = psTemp;
+    }
+    // add index padding block for locating message in decrypted block
+    eblock[2 + psLen] = 0x00;
+    // insert ascii values depending on how many characters in substring
     for (int i = 0; i < stringvalue.size(); i++) {
       eblock[eblock.size() - counter] = stringvalue.at(i);
       counter--;
@@ -154,33 +154,38 @@ public:
       ptr = ublock;
       // convert from raw ZZ back to byte block (unsigned char array)
       BytesFromZZ(ptr, rawdecrypt, bytelength);
-      // check if msg length is of correct size and that initial padding blocks
-      // are intact
-      if (this->keyLen != sizeof (ublock)) {
-        throw std::logic_error("ERROR!!! KEY LENGTH DOES NOT EQUAL MSG LENGTH");
-      }
-      // test first and second block of bytes for correct padding scheme
-      if (ublock[0] != 0x00) {
-        throw std::logic_error("ERROR!!! EXPECTED 0x00 AT FIRST BLOCK!!!");
-      }
-      if (ublock[1] != 0x02) {
-        throw std::logic_error("ERROR!!! EXPECTED 0x02 AT FIRST BLOCK!!!");
-      }
-      // search ublock array for 0x00 padding byte
-      unsigned int index;
-      for (int j = 0; j < this->keyLen; j++) {
-        // cycle until last 0 block is found and set index as + 1
-        if (ublock[j] == 0x00) index = j + 1;
-      }
-      // create temp vector to pass in characters via for loop
-      vector<unsigned char> temp(this->keyLen - index);
-      for (int j = 0; j < temp.size(); j++) {
-        temp[j] = ublock[j + index];
-      }
-      // extract characters from vector and append to decryptedmessage string
-      for (int k = 0; k < temp.size(); k++) {
-        this->decryptedmessage += temp[k];
-      }
+      unsigned int size = sizeof(ublock);
+      DecodeBlock(ublock, size);
+    }
+  }
+
+  void DecodeBlock(unsigned char *ublock, unsigned int size) {
+    // check if msg length is of correct size and that initial padding blocks
+    // are intact
+    if (this->keyLen != size) {
+      throw std::logic_error("ERROR!!! KEY LENGTH DOES NOT EQUAL MSG LENGTH");
+    }
+    // test first and second block of bytes for correct padding scheme
+    if (ublock[0] != 0x00) {
+      throw std::logic_error("ERROR!!! EXPECTED 0x00 AT FIRST BLOCK!!!");
+    }
+    if (ublock[1] != 0x02) {
+      throw std::logic_error("ERROR!!! EXPECTED 0x02 AT SECOND BLOCK!!!");
+    }
+    // search ublock array for 0x00 padding byte
+    unsigned int index;
+    for (int j = 0; j < size; j++) {
+      // cycle until last 0 block is found and set index as + 1
+      if (ublock[j] == 0x00) index = j + 1;
+    }
+    // create temp vector to pass in characters via for loop
+    vector<unsigned char> temp(size - index);
+    for (int j = 0; j < temp.size(); j++) {
+      temp[j] = ublock[j + index];
+    }
+    // extract characters from vector and append to decryptedmessage string
+    for (int k = 0; k < temp.size(); k++) {
+      this->decryptedmessage += temp[k];
     }
   }
 
