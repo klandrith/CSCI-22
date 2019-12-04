@@ -87,13 +87,13 @@ public:
       this->encryptedmsg.clear();
     }
     // set loopcycles with ceiling value to capture chars after incremements of four chars
-    this->loopcycles = ceil(this->msglength / 4);
+    this->loopcycles = ceil(this->msglength / 32);
     // loop through entire message and encrypt every one to four characters max
     unsigned int pos = 0;
     string stringvalue;
     ZZ tempZZ;
     for (int a = 0; a < this->loopcycles; a++) {
-      stringvalue = message.substr(pos, 4);
+      stringvalue = message.substr(pos, 32);
       unsigned int mlength = stringvalue.size();
       // create vectpr for storing blocks
       vector<unsigned char> eblock(this->keyLen);
@@ -115,29 +115,7 @@ public:
       // add index padding block for locating message in decrypted block
       eblock[2 + psLen] = 0x00;
       // insert ascii values depending on how many characters in substring
-      if (stringvalue.size() == 4) {
-        eblock[eblock.size() - 4] = stringvalue.at(0);
-        eblock[eblock.size() - 3] = stringvalue.at(1);
-        eblock[eblock.size() - 2] = stringvalue.at(2);
-        eblock[eblock.size() - 1] = stringvalue.at(3);
-      }
-      else if (stringvalue.size() == 3) {
-        eblock[eblock.size() - 3] = stringvalue.at(0);
-        eblock[eblock.size() - 2] = stringvalue.at(1);
-        eblock[eblock.size() - 1] = stringvalue.at(2);
-      }
-      else if (stringvalue.size() == 2) {
-        eblock[eblock.size() - 2] = stringvalue.at(0);
-        eblock[eblock.size() - 1] = stringvalue.at(1);
-      }
-      else if (stringvalue.size() == 1) {
-        eblock[eblock.size() - 1] = stringvalue.at(0);
-      }
-      // shouldn't happen
-      else {
-        throw std::logic_error("ERROR!!! LOOP SHOULDN'T RUN ON AN EMPTY STRING!!!");
-        break;
-      }
+      AddMsgToBlock(eblock, stringvalue);
       // create temporary char array to pass to ZZFromBytes function and
       // pass in values from eblock vector
       unsigned char tempblock[eblock.size()];
@@ -152,7 +130,15 @@ public:
       // encrypt byte converted ZZ and store
       this->encryptedmsg.push_back(PowerMod(tempZZ, e, n));
       // increment pos counter by four to capture next four characters (or less)
-      pos += 4;
+      pos += 32;
+    }
+  }
+
+  void AddMsgToBlock(vector<unsigned char> &eblock, string stringvalue) {
+    unsigned int counter = stringvalue.size();
+    for (int i = 0; i < stringvalue.size(); i++) {
+      eblock[eblock.size() - counter] = stringvalue.at(i);
+      counter--;
     }
   }
 
@@ -185,6 +171,7 @@ public:
       // search ublock array for 0x00 padding byte
       unsigned int index;
       for (int j = 0; j < this->keyLen; j++) {
+        // cycle until last 0 block is found and set index as + 1
         if (ublock[j] == 0x00) index = j + 1;
       }
       // create temp vector to pass in characters via for loop

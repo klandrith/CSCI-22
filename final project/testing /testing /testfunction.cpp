@@ -46,7 +46,7 @@ int main() {
                           'X', 'Y', 'Z'};
 
     //unsigned int numchars = rand() % 10000 + 9999;
-    unsigned int numchars = rand() % 20 + 1;
+    unsigned int numchars = rand() % 100 + 1;
     for (int i = 0; i < numchars; i++) {
       unsigned int index = rand() % 52;
       testmessage = testmessage += alphabet[index];

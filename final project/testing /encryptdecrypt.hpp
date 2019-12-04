@@ -1,5 +1,5 @@
 /*  Programmer:     Kyle Landrith
-    Date Competed:  11/29/19
+    Date Competed:  12/4/19
     Resources:      https://brilliant.org/wiki/rsa-encryption/
                     https://simple.wikipedia.org/wiki/RSA_algorithm
                     https://www.shoup.net/ntl/
@@ -50,32 +50,32 @@ public:
 
   // key generation function
   void generateKeys() {
-    // set bit length for prime numbers and error rate 2^(-error)
-    // error rate is upper limit that generated numbers are not actually prime
+    this->e = 65537;
     long primelength;
     primelength = 1024;
     long error;
     error = 80;
-    this->p = 1;
-    this->q = 1;
-    // generate 1024 bit primes that are different
-    while (p == q) {
-      this->p = GenGermainPrime_ZZ(primelength, error);
-      this->q = GenGermainPrime_ZZ(primelength, error);
-    }
+    this->p = GenGermainPrime_ZZ(primelength, error);
+    this->q = GenGermainPrime_ZZ(primelength, error);
     // assign n and phi values
     this->n = this->p * this->q;
     this->phi = (this->p - 1) * (this->q - 1);
-    // set bit length for e generation
-    long elength;
-    elength = 64;
-    // test if e and phi are coprime, if not change value of e until they are
-    while (true) {
-      this->e = RandomLen_ZZ(elength);
-      if (GCD(this->e, this->phi) == 1 && this->e > 1000) break;
+    // keep generating primes under
+    while (GCD(this->e, this->phi) != 1 && this->p == this->q) {
+      // set bit length for prime numbers and error rate 2^(-error)
+      // error rate is upper limit that generated numbers are not actually prime
+      // generate 1024 bit primes that are different
+      this->p = GenGermainPrime_ZZ(primelength, error);
+      this->q = GenGermainPrime_ZZ(primelength, error);
+      // assign n and phi values
+      this->n = this->p * this->q;
+      this->phi = (this->p - 1) * (this->q - 1);
     }
     // get value for d (de = 1 mod phi)
     this->d = InvMod(this->e, this->phi);
+    // set keyLen for length of encrypted blocks (minus 1 byte to make sure
+    // that encrypted block is always less than N or D values, otherwise
+    // powerMod will throw an error)
     this->keyLen = ((countBits(n) + 7) / 8) - 1;
   }
 
@@ -86,15 +86,16 @@ public:
     if (this->encryptedmsg.size() != 0) {
       this->encryptedmsg.clear();
     }
-    this->loopcycles = ceil(this->msglength / 4);
+    // set loopcycles with ceiling value to capture chars after incremements of four chars
+    this->loopcycles = ceil(this->msglength / 32);
     // loop through entire message and encrypt every one to four characters max
     unsigned int pos = 0;
     string stringvalue;
     ZZ tempZZ;
     for (int a = 0; a < this->loopcycles; a++) {
-      stringvalue = message.substr(pos, 4);
+      stringvalue = message.substr(pos, 32);
       unsigned int mlength = stringvalue.size();
-      // create vectpr fpr storing blocks
+      // create vectpr for storing blocks
       vector<unsigned char> eblock(this->keyLen);
       // set padding length
       unsigned int psLen = (keyLength() / 8) - (1 * mlength) - 3;
@@ -102,38 +103,19 @@ public:
       // eblock = 01 || 02 || random padding || 00 || message
       eblock[0] = 0x00;
       eblock[1] = 0x02;
-      // fill PS
+      ZZ ran;
+      long limit = 255;
+      unsigned int psTemp;
+      // fill PS with random numbers
       for (int j = 2; j < psLen; j++) {
-        while(eblock[j] == 0x00) {
-          eblock[j] = rand() % 255 + 1;
-        }
+        ran = RandomLen_ZZ(limit);
+        conv(psTemp, ran);
+        eblock[j] = psTemp;
       }
       // add index padding block for locating message in decrypted block
       eblock[2 + psLen] = 0x00;
       // insert ascii values depending on how many characters in substring
-      if (stringvalue.size() == 4) {
-        eblock[eblock.size() - 4] = stringvalue.at(0);
-        eblock[eblock.size() - 3] = stringvalue.at(1);
-        eblock[eblock.size() - 2] = stringvalue.at(2);
-        eblock[eblock.size() - 1] = stringvalue.at(3);
-      }
-      else if (stringvalue.size() == 3) {
-        eblock[eblock.size() - 3] = stringvalue.at(0);
-        eblock[eblock.size() - 2] = stringvalue.at(1);
-        eblock[eblock.size() - 1] = stringvalue.at(2);
-      }
-      else if (stringvalue.size() == 2) {
-        eblock[eblock.size() - 2] = stringvalue.at(0);
-        eblock[eblock.size() - 1] = stringvalue.at(1);
-      }
-      else if (stringvalue.size() == 1) {
-        eblock[eblock.size() - 1] = stringvalue.at(0);
-      }
-      // shouldn't happen
-      else {
-        throw std::logic_error("ERROR!!! SHOULD NOT RUN ON EMPTY STRING!!!");
-        break;
-      }
+      AddMsgToBlock(eblock, stringvalue);
       // create temporary char array to pass to ZZFromBytes function and
       // pass in values from eblock vector
       unsigned char tempblock[eblock.size()];
@@ -148,7 +130,15 @@ public:
       // encrypt byte converted ZZ and store
       this->encryptedmsg.push_back(PowerMod(tempZZ, e, n));
       // increment pos counter by four to capture next four characters (or less)
-      pos += 4;
+      pos += 32;
+    }
+  }
+
+  void AddMsgToBlock(vector<unsigned char> &eblock, string stringvalue) {
+    unsigned int counter = stringvalue.size();
+    for (int i = 0; i < stringvalue.size(); i++) {
+      eblock[eblock.size() - counter] = stringvalue.at(i);
+      counter--;
     }
   }
 
@@ -181,6 +171,7 @@ public:
       // search ublock array for 0x00 padding byte
       unsigned int index;
       for (int j = 0; j < this->keyLen; j++) {
+        // cycle until last 0 block is found and set index as + 1
         if (ublock[j] == 0x00) index = j + 1;
       }
       // create temp vector to pass in characters via for loop
@@ -195,7 +186,7 @@ public:
     }
   }
 
-  // function to return a string representing encrytped message
+  // function to return a string representing encrytped message in hex
   string getEncrypted() {
     stringstream stream;
     for (int i = 0; i < this->encryptedmsg.size(); i++) {
@@ -242,7 +233,7 @@ public:
     return stream.str();
   }
 
-  // function to count the bits in encryption keys
+  // function to count bits
   template <typename T>
   int countBits(T value) {
     int count = 0;
