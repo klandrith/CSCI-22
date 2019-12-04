@@ -34,7 +34,7 @@ int main() {
   // seed pseudo random number generators
   srand(time(0));
   while (true) {
-    string inputmessage, outputmessage;
+    string testmessage, outputmessage;
     testmessage = "", outputmessage = "";
     char alphabet[52] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g',
                           'h', 'i', 'j', 'k', 'l', 'm', 'n',
@@ -46,28 +46,16 @@ int main() {
                           'X', 'Y', 'Z'};
 
     //unsigned int numchars = rand() % 10000 + 9999;
-    unsigned int numchars = rand() % 100 + 1;
+    unsigned int numchars = rand() % 200000 + 200000;
     for (int i = 0; i < numchars; i++) {
       unsigned int index = rand() % 52;
       testmessage = testmessage += alphabet[index];
     }
     rsa.generateKeys();
-    auto startEncrypt = high_resolution_clock::now();
     rsa.EncryptRSA(testmessage);
-    auto stopEncrypt = high_resolution_clock::now();
-    auto durationEncrypt = duration_cast<milliseconds>(stopEncrypt - startEncrypt);
-    auto startDecrypt = high_resolution_clock::now();
     rsa.DecryptRSA();
-    auto stopDecrypt = high_resolution_clock::now();
-    auto durationDecrypt = duration_cast<milliseconds>(stopDecrypt - startDecrypt);
-    inputmessage = testmessage;
     outputmessage = rsa.getDecrypted();
 
-    cout << "\nMessage took " << durationEncrypt.count() << "ms to encrypt...\n";
-    cout << "Message took " << durationDecrypt.count() << "ms to decrypt...\n";
-
-    cout << "\n" << testmessage << endl;
-    cout << "\n\n" << outputmessage << endl;
     if (testmessage != outputmessage) break;
     cout << "Continuing testing values for encryption..." << endl;
   }

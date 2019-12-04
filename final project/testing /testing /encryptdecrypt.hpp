@@ -87,13 +87,13 @@ public:
       this->encryptedmsg.clear();
     }
     // set loopcycles with ceiling value to capture chars after incremements of four chars
-    this->loopcycles = ceil(this->msglength / 32);
+    this->loopcycles = ceil(this->msglength / 64);
     // loop through entire message and encrypt every one to four characters max
     unsigned int pos = 0;
     string stringvalue;
     ZZ tempZZ;
     for (int a = 0; a < this->loopcycles; a++) {
-      stringvalue = message.substr(pos, 32);
+      stringvalue = message.substr(pos, 64);
       unsigned int mlength = stringvalue.size();
       // create vectpr for storing blocks
       vector<unsigned char> eblock(this->keyLen);
@@ -130,7 +130,7 @@ public:
       // encrypt byte converted ZZ and store
       this->encryptedmsg.push_back(PowerMod(tempZZ, e, n));
       // increment pos counter by four to capture next four characters (or less)
-      pos += 32;
+      pos += 64;
     }
   }
 
