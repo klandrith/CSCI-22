@@ -193,9 +193,7 @@ public:
   string getEncrypted() {
     stringstream stream;
     for (int i = 0; i < this->encryptedmsg.size(); i++) {
-      unsigned int temp;
-      conv(temp, this->encryptedmsg[i]);
-      stream << hex << temp;
+      stream << this->encryptedmsg[i];
     }
     return stream.str();
   }
