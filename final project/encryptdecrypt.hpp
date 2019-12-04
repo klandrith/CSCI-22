@@ -59,7 +59,7 @@ public:
     this->n = this->p * this->q;
     this->phi = (this->p - 1) * (this->q - 1);
     // keep generating primes under
-    while (GCD(this->e, this->phi) != 1 && this->p == this->q) {
+    while (GCD(this->e, this->phi) != 1 && this->p == this->q && keyLength() != 2048) {
       // set bit length for prime numbers and error rate 2^(-error)
       // error rate is upper limit that generated numbers are not actually prime
       // generate 1024 bit primes that are different

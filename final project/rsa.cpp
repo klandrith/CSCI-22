@@ -80,7 +80,7 @@ int main() {
     cout << "\nMessage took " << durationEncrypt.count() << " microseconds to encrypt...\n";
 
     EnterContinue("Press enter to display encrypted message...");
-    cout << "\nEncrypted messaged is [in hexadecimal format]:\n" << rsa.getEncrypted() << endl;
+    cout << "\nEncrypted messaged is:\n" << rsa.getEncrypted() << endl;
     EnterContinue("Press enter to begin decryption...");
 
     auto startDecrypt = high_resolution_clock::now();
