@@ -65,10 +65,8 @@ public:
       // set bit length for prime numbers and error rate 2^(-error)
       // error rate is upper limit that generated numbers are not actually prime
       // generate 1024 bit primes that are different
-      while (p == q) {
-        this->p = GenGermainPrime_ZZ(primelength, error);
-        this->q = GenGermainPrime_ZZ(primelength, error);
-      }
+      this->p = GenGermainPrime_ZZ(primelength, error);
+      this->q = GenGermainPrime_ZZ(primelength, error);
       // assign n and phi values
       this->n = this->p * this->q;
       this->phi = (this->p - 1) * (this->q - 1);
