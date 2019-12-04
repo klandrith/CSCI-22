@@ -44,7 +44,8 @@ int main() {
                           'Q', 'R', 'S', 'T', 'U', 'V', 'W',
                           'X', 'Y', 'Z'};
 
-    unsigned int numchars = rand() % 20 + 1;
+    //unsigned int numchars = rand() % 10000 + 9999;
+    unsigned int numchars = 500;
     for (int i = 0; i < numchars; i++) {
       unsigned int index = rand() % 52;
       testmessage = testmessage += alphabet[index];
@@ -52,12 +53,13 @@ int main() {
     rsa.generateKeys();
     cout << rsa.getN() << endl;
     rsa.EncryptRSA(testmessage);
+    cout << "passed encrypt" << endl;
     rsa.DecryptRSA();
     outputmessage = rsa.getDecrypted();
-
-    if (testmessage != outputmessage) break;
     cout << testmessage << endl;
+    cout << "\n";
     cout << outputmessage << endl;
+    if (testmessage != outputmessage) break;
     cout << "Continuing testing values for encryption..." << endl;
   }
   cout << "ERROR! ENCRYPTION/DECRYPTION FAILED!!!" << endl;

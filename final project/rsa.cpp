@@ -49,8 +49,14 @@ int main() {
          << "*                                                              *\n"
          << "****************************************************************\n";
 
-    cout << "\n\n\nEnter the message to encrypt and press enter:\n";
-    getline(cin, message);
+
+    while (true) {
+      cout << "\n\n\nEnter the message to encrypt and press enter [100 chars max]:\n";
+      getline(cin, message);
+      if (message.size() <= 100) break;
+      else cout << "\n\nPlease enter a message 100 characters or less...";
+    }
+
     EnterContinue("\nPress enter to generate keys...");
     auto startKey = high_resolution_clock::now();
     rsa.generateKeys();

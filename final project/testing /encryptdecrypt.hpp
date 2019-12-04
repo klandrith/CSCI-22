@@ -1,5 +1,5 @@
 /*  Programmer:     Kyle Landrith
-    Date Competed:  12/2/19
+    Date Competed:  11/29/19
     Resources:      https://brilliant.org/wiki/rsa-encryption/
                     https://simple.wikipedia.org/wiki/RSA_algorithm
                     https://www.shoup.net/ntl/
@@ -23,10 +23,13 @@
 
 using std::string;
 using std::stringstream;
+using std::stoi;
 using std::rand;
 using std::exception;
 using std::vector;
 using std::hex;
+using std::cout;
+using std::endl;
 using namespace NTL;
 
 class RSA {
@@ -37,7 +40,7 @@ public:
     srand(time(0));
     // seed RNG
     ZZ seed;
-    seed = rand() % 999999;
+    seed = rand() % 255;
     void SetSeed(const ZZ& seed);
   }
 
@@ -47,35 +50,33 @@ public:
 
   // key generation function
   void generateKeys() {
+    // set bit length for prime numbers and error rate 2^(-error)
+    // error rate is upper limit that generated numbers are not actually prime
+    long primelength;
+    primelength = 1024;
+    long error;
+    error = 80;
     this->p = 1;
     this->q = 1;
-    this->n = 1;
-    this->phi = 1;
-    while(keyLength() != 2048) {
-      // set bit length for prime numbers and error rate 2^(-error)
-      // error rate is upper limit that generated numbers are not actually prime
-      long primelength;
-      primelength = 1024;
-      long error;
-      error = 80;
-      this->e = 65537;
-      // generate 1024 bit primes that are different
-      while (true) {
-        // generate random primes
-        this->p = GenGermainPrime_ZZ(primelength, error);
-        this->q = GenGermainPrime_ZZ(primelength, error);
-        // assign n and phi values
-        this->n = this->p * this->q;
-        this->phi = (this->p - 1) * (this->q - 1);
-        // check for proper GCD value between e and phi, and that primes are not
-        // the same
-        if (GCD(this->e, this->phi) == 1 && this->p != this->q) break;
-      }
-
-      // get value for d (de = 1 mod phi)
-      this->d = InvMod(this->e, this->phi);
-      this->keyLen = ((countBits(n) + 7) / 8) - 1;
+    // generate 1024 bit primes that are different
+    while (p == q) {
+      this->p = GenGermainPrime_ZZ(primelength, error);
+      this->q = GenGermainPrime_ZZ(primelength, error);
     }
+    // assign n and phi values
+    this->n = this->p * this->q;
+    this->phi = (this->p - 1) * (this->q - 1);
+    // set bit length for e generation
+    long elength;
+    elength = 64;
+    // test if e and phi are coprime, if not change value of e until they are
+    while (true) {
+      this->e = RandomLen_ZZ(elength);
+      if (GCD(this->e, this->phi) == 1 && this->e > 1000) break;
+    }
+    // get value for d (de = 1 mod phi)
+    this->d = InvMod(this->e, this->phi);
+    this->keyLen = ((countBits(n) + 7) / 8) - 1;
   }
 
   // encryption function
@@ -91,26 +92,19 @@ public:
     string stringvalue;
     for (int a = 0; a < this->loopcycles; a++) {
       stringvalue = message.substr(pos, 4);
-      unsigned int mlength = message.size();
+      unsigned int mlength = stringvalue.size();
       // create vectpr fpr storing blocks
       vector<unsigned char> eblock(this->keyLen);
       // set padding length
-      unsigned int psLen = this->keyLen - (1 * mlength) - 3;
+      unsigned int psLen = (keyLength() / 8) - (1 * mlength) - 3;
       // add padding to message
       // eblock = 01 || 02 || random padding || 00 || message
-      for (int i = 0; i < stringvalue.size(); i++) {
-        eblock[0] = 0x00;
-        eblock[1] = 0x02;
-        // fill PS
-        for (int j = 2; j < 2 + psLen; j++) {
-          while(eblock[j] == 0x00) {
-            ZZ limit;
-            limit = 255;
-            ZZ ran = RandomBnd(limit);
-            unsigned int random;
-            conv(random, ran);
-            eblock[j] = random;
-          }
+      eblock[0] = 0x00;
+      eblock[1] = 0x02;
+      // fill PS
+      for (int j = 2; j < psLen; j++) {
+        while(eblock[j] == 0x00) {
+          eblock[j] = rand() % 255 + 1;
         }
       }
       // add index padding block for locating message in decrypted block
@@ -157,7 +151,6 @@ public:
     }
   }
 
-
   // decryption function
   void DecryptRSA() {
     // clear decrypted message string
@@ -182,17 +175,21 @@ public:
         throw std::logic_error("ERROR!!! EXPECTED 0x00 AT FIRST BLOCK!!!");
       }
       if (ublock[1] != 0x02) {
-        throw std::logic_error("ERROR!!! EXPECTED 0x02 AT SECOND BLOCK!!!");
+        throw std::logic_error("ERROR!!! EXPECTED 0x02 AT FIRST BLOCK!!!");
       }
       // search ublock array for 0x00 padding byte
       unsigned int index;
       for (int j = 0; j < this->keyLen; j++) {
         if (ublock[j] == 0x00) index = j + 1;
       }
-      // extract ascii characters and concatenate onto decrytpedmessage string
-      for (int l = index; l < this->keyLen; l++) {
-        char msg = ublock[l];
-        this->decryptedmessage += msg;
+      // create temp vector to pass in characters via for loop
+      vector<unsigned char> temp(this->keyLen - index);
+      for (int j = 0; j < temp.size(); j++) {
+        temp[j] = ublock[j + index];
+      }
+      // extract characters from vector and append to decryptedmessage string
+      for (int k = 0; k < temp.size(); k++) {
+        this->decryptedmessage += temp[k];
       }
     }
   }
@@ -267,9 +264,9 @@ public:
 private:
   // variables needed for encryption/decryption
   ZZ p, q, phi, n, e, d;
-  double msglength;
-  unsigned int keyLen = 0;
-  double loopcycles;
+  unsigned int msglength;
+  unsigned int keyLen;
+  unsigned int loopcycles;
   vector<ZZ> encryptedmsg;
-  string decryptedmessage;
+  string decryptedmessage = "";
 };

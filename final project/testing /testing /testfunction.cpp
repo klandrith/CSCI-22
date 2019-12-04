@@ -35,7 +35,7 @@ int main() {
   srand(time(0));
   while (true) {
     string inputmessage, outputmessage;
-    testmessage = "";
+    testmessage = "", outputmessage = "";
     char alphabet[52] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g',
                           'h', 'i', 'j', 'k', 'l', 'm', 'n',
                           'o', 'p', 'q', 'r', 's', 't', 'u',
@@ -45,21 +45,27 @@ int main() {
                           'Q', 'R', 'S', 'T', 'U', 'V', 'W',
                           'X', 'Y', 'Z'};
 
-    for (int i = 0; i < 10000; i++) {
-      ZZ randnumber = RandomLen_ZZ(255);
-      unsigned int index;
-      conv(index, randnumber);
-      unsigned char temp = index;
-      testmessage = testmessage += temp;
+    //unsigned int numchars = rand() % 10000 + 9999;
+    unsigned int numchars = 100000;
+    for (int i = 0; i < numchars; i++) {
+      unsigned int index = rand() % 52;
+      testmessage = testmessage += alphabet[index];
     }
-    rsa.generateKeys(256);
+    rsa.generateKeys();
+    auto startEncrypt = high_resolution_clock::now();
     rsa.EncryptRSA(testmessage);
+    auto stopEncrypt = high_resolution_clock::now();
+    auto durationEncrypt = duration_cast<milliseconds>(stopEncrypt - startEncrypt);
+    auto startDecrypt = high_resolution_clock::now();
     rsa.DecryptRSA();
+    auto stopDecrypt = high_resolution_clock::now();
+    auto durationDecrypt = duration_cast<milliseconds>(stopDecrypt - startDecrypt);
     inputmessage = testmessage;
     outputmessage = rsa.getDecrypted();
 
+    cout << "\nMessage took " << durationEncrypt.count() << "ms to encrypt...\n";
+    cout << "Message took " << durationDecrypt.count() << "ms to decrypt...\n";
     if (testmessage != outputmessage) break;
-    cout << testmessage << endl;
     cout << "Continuing testing values for encryption..." << endl;
   }
   cout << "ERROR! ENCRYPTION/DECRYPTION FAILED!!!" << endl;
