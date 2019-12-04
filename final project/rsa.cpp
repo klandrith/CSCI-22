@@ -51,7 +51,7 @@ int main() {
 
 
 
-    cout << "\n\n\nEnter the message to encrypt and press enter [100 chars max]:\n";
+    cout << "\n\n\nEnter the message to encrypt and press enter:\n";
     getline(cin, message);
     EnterContinue("\nPress enter to generate keys...");
     auto startKey = high_resolution_clock::now();

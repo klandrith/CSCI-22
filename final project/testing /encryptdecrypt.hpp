@@ -265,9 +265,9 @@ public:
 private:
   // variables needed for encryption/decryption
   ZZ p, q, phi, n, e, d;
-  unsigned int msglength;
+  double msglength;
   unsigned int keyLen;
-  unsigned int loopcycles;
+  double loopcycles;
   vector<ZZ> encryptedmsg;
   string decryptedmessage = "";
 };
