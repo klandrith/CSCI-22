@@ -37,8 +37,6 @@ public:
   // constructor
   RSA() {
     // seed RNG
-    srand(time(0));
-    // seed RNG
     ZZ seed;
     seed = rand() % 255;
     void SetSeed(const ZZ& seed);
