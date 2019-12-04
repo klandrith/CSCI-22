@@ -46,7 +46,7 @@ int main() {
                           'X', 'Y', 'Z'};
 
     //unsigned int numchars = rand() % 10000 + 9999;
-    unsigned int numchars = rand() % 100000 + 99;
+    unsigned int numchars = rand() % 100000 + 99999;
     for (int i = 0; i < numchars; i++) {
       unsigned int index = rand() % 52;
       testmessage = testmessage += alphabet[index];
@@ -63,11 +63,11 @@ int main() {
     inputmessage = testmessage;
     outputmessage = rsa.getDecrypted();
 
-    cout << "\nMessage took " << durationEncrypt.count() << "ms to encrypt...\n";
-    cout << "Message took " << durationDecrypt.count() << "ms to decrypt...\n";
+    //cout << "\nMessage took " << durationEncrypt.count() << "ms to encrypt...\n";
+    //cout << "Message took " << durationDecrypt.count() << "ms to decrypt...\n";
 
-    cout << "\n" << testmessage << endl;
-    cout << "\n\n" << outputmessage << endl;
+    //cout << "\n" << testmessage << endl;
+    //cout << "\n\n" << outputmessage << endl;
     if (testmessage != outputmessage) break;
     cout << "Continuing testing values for encryption..." << endl;
   }
