@@ -90,6 +90,7 @@ public:
     // loop through entire message and encrypt every one to four characters max
     unsigned int pos = 0;
     string stringvalue;
+    ZZ tempZZ;
     for (int a = 0; a < this->loopcycles; a++) {
       stringvalue = message.substr(pos, 4);
       unsigned int mlength = stringvalue.size();
@@ -143,7 +144,7 @@ public:
       ptr = tempblock;
       long bytelength = this->keyLen;
       // convert from byte block (unsigned char array) to ZZ
-      ZZ tempZZ = ZZFromBytes(ptr, bytelength);
+      tempZZ = ZZFromBytes(ptr, bytelength);
       // encrypt byte converted ZZ and store
       this->encryptedmsg.push_back(PowerMod(tempZZ, e, n));
       // increment pos counter by four to capture next four characters (or less)
