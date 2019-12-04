@@ -119,7 +119,7 @@ public:
     // set padding length
     unsigned int psLen = (keyLength() / 8) - (1 * mlength) - 3;
     // add padding to message
-    // eblock = 01 || 02 || random padding || 00 || message
+    // eblock = 00 || 02 || random padding || 00 || message
     eblock[0] = 0x00;
     eblock[1] = 0x02;
     ZZ ran;
