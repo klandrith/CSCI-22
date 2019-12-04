@@ -3,7 +3,7 @@
     Resources:      https://brilliant.org/wiki/rsa-encryption/
                     https://simple.wikipedia.org/wiki/RSA_algorithm
                     https://www.shoup.net/ntl/
-                    https://stackoverflow.com/questions/2808398/easily-measure-elapsed-time
+                    https://www.geeksforgeeks.org/measure-execution-time-function-cpp/
                     https://www.includehelp.com/cpp-programs/find-total-number-of-bits-required-to-represent-a-number-in-binary.aspx
                     https://eli.thegreenplace.net/2019/rsa-theory-and-implementation/
     Description:    A class implementation and declaration to implement simple RSA
