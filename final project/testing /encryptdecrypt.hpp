@@ -59,7 +59,7 @@ public:
     this->n = this->p * this->q;
     this->phi = (this->p - 1) * (this->q - 1);
     // keep generating primes under
-    while (GCD(this->e, this->phi) != 1 && this->p == this->q) {
+    while (GCD(this->e, this->phi) != 1 && this->p == this->q && keyLength() != 2048) {
       // set bit length for prime numbers and error rate 2^(-error)
       // error rate is upper limit that generated numbers are not actually prime
       // generate 1024 bit primes that are different
@@ -113,13 +113,15 @@ public:
     }
   }
 
+  // function to encode the message and padding into a block of data prior to
+  // encryption being performed
   void EncodeBlock(vector<unsigned char> &eblock, string stringvalue) {
     unsigned int mlength = stringvalue.size();
     unsigned int counter = stringvalue.size();
     // set padding length
     unsigned int psLen = (keyLength() / 8) - (1 * mlength) - 3;
     // add padding to message
-    // eblock = 01 || 02 || random padding || 00 || message
+    // eblock = 00 || 02 || random padding || 00 || message
     eblock[0] = 0x00;
     eblock[1] = 0x02;
     ZZ ran;
@@ -159,6 +161,7 @@ public:
     }
   }
 
+  // function to decode and extract message from an unecrypted block of data
   void DecodeBlock(unsigned char *ublock, unsigned int size) {
     // check if msg length is of correct size and that initial padding blocks
     // are intact
@@ -194,6 +197,16 @@ public:
     stringstream stream;
     for (int i = 0; i < this->encryptedmsg.size(); i++) {
       stream << this->encryptedmsg[i];
+    }
+    string tempstring = stream.str();
+    stream.str("");
+    unsigned int pos = 0;
+    double stringsize = tempstring.size();
+    double cycles = stringsize / 6;
+    for (int j = 0; j < cycles; j++) {
+      unsigned int tempint = stoi(tempstring.substr(pos, 6));
+      stream << hex << tempint;
+      pos += 6;
     }
     return stream.str();
   }

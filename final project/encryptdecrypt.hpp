@@ -198,6 +198,16 @@ public:
     for (int i = 0; i < this->encryptedmsg.size(); i++) {
       stream << this->encryptedmsg[i];
     }
+    string tempstring = stream.str();
+    stream.str("");
+    unsigned int pos = 0;
+    double stringsize = tempstring.size();
+    double cycles = stringsize / 6;
+    for (int j = 0; j < cycles; j++) {
+      unsigned int tempint = stoi(tempstring.substr(pos, 6));
+      stream << hex << tempint;
+      pos += 6;
+    }
     return stream.str();
   }
 

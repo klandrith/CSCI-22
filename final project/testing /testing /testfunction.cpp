@@ -53,6 +53,7 @@ int main() {
     }
     rsa.generateKeys();
     rsa.EncryptRSA(testmessage);
+    rsa.getEncrypted();
     rsa.DecryptRSA();
     outputmessage = rsa.getDecrypted();
 
