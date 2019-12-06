@@ -59,7 +59,7 @@ public:
     // assign n and phi values
     this->n = this->p * this->q;
     this->phi = (this->p - 1) * (this->q - 1);
-    // keep generating primes under
+    // keep generating primes until conditions met...
     while (GCD(this->e, this->phi) != 1 && this->p == this->q && keyLength() != 2048) {
       // set bit length for prime numbers and error rate 2^(-error)
       // error rate is upper limit that generated numbers are not actually prime
@@ -85,9 +85,11 @@ public:
     if (this->encryptedmsg.size() != 0) {
       this->encryptedmsg.clear();
     }
-    // set loopcycles with ceiling value to capture chars after incremements of four chars
+    // set loopcycles with ceiling value to capture chars after incremements
+    // of 64 chars
     this->loopcycles = ceil(this->msglength / 64);
-    // loop through entire message and encrypt every one to four characters max
+    // loop through entire message and encrypt every one to 64 characters max
+    // per encryption block
     unsigned int pos = 0;
     string stringvalue;
     ZZ tempZZ;
@@ -95,6 +97,7 @@ public:
       stringvalue = message.substr(pos, 64);
       // create vectpr for storing blocks
       vector<unsigned char> eblock(this->keyLen);
+      // pad block and add message
       EncodeBlock(eblock, stringvalue);
       // create temporary char array to pass to ZZFromBytes function and
       // pass in values from eblock vector
@@ -114,13 +117,12 @@ public:
     }
   }
 
-  // function to encode the message and padding into a block of data prior to
+  // function to encode the message and pad a block of data prior to
   // encryption being performed
   void EncodeBlock(vector<unsigned char> &eblock, string stringvalue) {
-    unsigned int mlength = stringvalue.size();
     unsigned int counter = stringvalue.size();
     // set padding length
-    unsigned int psLen = (keyLength() / 8) - (1 * mlength) - 3;
+    unsigned int psLen = (keyLength() / 8) - (1 * stringvalue.size()) - 3;
     // add padding to message
     // eblock = 00 || 02 || random padding || 00 || message
     eblock[0] = 0x00;
@@ -158,12 +160,13 @@ public:
       // convert from raw ZZ back to byte block (unsigned char array)
       BytesFromZZ(ptr, rawdecrypt, bytelength);
       unsigned int size = sizeof(ublock);
+      // call decode to extract msg from ublock
       DecodeBlock(ublock, size);
     }
   }
 
   // function to decode and extract message from an unecrypted block of data
-  void DecodeBlock(unsigned char *ublock, unsigned int size) {
+  void DecodeBlock(const unsigned char *ublock, unsigned int size) {
     // check if msg length is of correct size and that initial padding blocks
     // are intact
     if (this->keyLen != size) {
@@ -182,14 +185,9 @@ public:
       // cycle until last 0 block is found and set index as + 1
       if (ublock[j] == 0x00) index = j + 1;
     }
-    // create temp vector to pass in characters via for loop
-    vector<unsigned char> temp(size - index);
-    for (int j = 0; j < temp.size(); j++) {
-      temp[j] = ublock[j + index];
-    }
-    // extract characters from vector and append to decryptedmessage string
-    for (int k = 0; k < temp.size(); k++) {
-      this->decryptedmessage += temp[k];
+    // extract characters from ublock and append to decryptedmessage string
+    for (int k = 0; k < (size - index); k++) {
+      this->decryptedmessage += ublock[k + index];
     }
   }
 
@@ -250,7 +248,7 @@ public:
 
   // function to count bits
   template <typename T>
-  int countBits(T value) {
+  unsigned int countBits(T value) {
     int count = 0;
     T temp = value;
     // While loop will run until we get temp = 0
