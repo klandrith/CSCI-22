@@ -128,7 +128,7 @@ public:
     eblock[0] = 0x00;
     eblock[1] = 0x02;
     ZZ ran;
-    long limit = 255;
+    long limit = 254 + 1;
     unsigned int psTemp;
     // fill PS with random numbers
     for (int j = 2; j < psLen; j++) {
@@ -181,9 +181,12 @@ public:
     }
     // search ublock array for 0x00 padding byte
     unsigned int index;
-    for (int j = 0; j < size; j++) {
+    for (int j = 2; j < size; j++) {
       // cycle until last 0 block is found and set index as + 1
-      if (ublock[j] == 0x00) index = j + 1;
+      if (ublock[j] == 0x00) {
+        index = j + 1;
+        break;
+      }
     }
     // extract characters from ublock and append to decryptedmessage string
     for (int k = 0; k < (size - index); k++) {
